@@ -1,4 +1,4 @@
-#!/data/data/com.termux/files/usr/bin/bash
+#!/bin/bash
 #
 # build-termux.sh - 在 Android 手机上原生编译 llama.cpp 引擎
 #
