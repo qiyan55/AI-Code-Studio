@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  AI Code Studio 网络安全配置
+  说明：
+  - Android 9 (API 28) 及以上默认禁止明文 HTTP 流量
+  - 本应用主要在本地运行（llama.cpp 本地推理），网络仅用于可选的模型下载
+  - 允许明文 HTTP 以便用户从本地服务器或局域网下载模型文件
+  - 生产环境建议移除 cleartextTrafficPermitted，仅允许 HTTPS
+-->
+<network-security-config>
+
+    <!-- 基础配置：允许明文 HTTP（本地模型下载需要） -->
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </base-config>
+
+    <!--
+    生产环境建议使用以下更严格的配置（替换上面的 base-config）：
+
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    仅对特定域名允许明文：
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">127.0.0.1</domain>
+        <domain includeSubdomains="true">10.0.0.0/8</domain>
+        <domain includeSubdomains="true">192.168.0.0/16</domain>
+        <domain includeSubdomains="true">172.16.0.0/12</domain>
+    </domain-config>
+    -->
+
+    <!-- 调试模式：允许用户安装的 CA 证书（用于抓包调试） -->
+    <debug-overrides>
+        <trust-anchors>
+            <certificates src="user" />
+        </trust-anchors>
+    </debug-overrides>
+
+</network-security-config>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- 生成中描边旋转：白色开口圆环，48dp 罩在 44dp 红圆外沿（描边完全在圆外） -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.2"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M12.96 1.04 A11 11 0 0 1 12.96 22.96 M12.96 22.96 A11 11 0 0 1 9.15 1.38" />
+</vector>

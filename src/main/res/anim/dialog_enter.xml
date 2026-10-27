@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Apple 风格弹窗进场动画（对应 iOS UIAlertController 的呈现动效）
+  特征：从略小的尺寸放大到原尺寸 + 淡入，带轻微过冲回弹（弹簧感）。
+
+  scale 用 overshoot：0.88 → 1.0 时会冲到约 1.02 再回落，
+  这正是 iOS 弹窗那种"弹一下"的手感。
+  alpha 单独用 decelerate：避免过冲导致透明度超过 1.0 显得突兀。
+-->
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shareInterpolator="false">
+
+    <alpha
+        android:interpolator="@android:interpolator/decelerate_quad"
+        android:fromAlpha="0.0"
+        android:toAlpha="1.0"
+        android:duration="200" />
+
+    <scale
+        android:interpolator="@android:interpolator/overshoot"
+        android:fromXScale="0.88"
+        android:toXScale="1.0"
+        android:fromYScale="0.88"
+        android:toYScale="1.0"
+        android:pivotX="50%"
+        android:pivotY="50%"
+        android:duration="260" />
+
+</set>

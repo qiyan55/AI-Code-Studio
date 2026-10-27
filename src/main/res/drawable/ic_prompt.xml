@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- 系统提示词：圆角方形轮廓 + 左上角实心圆点（按用户参考图复刻） -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3.4"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M2.5 3.5A1.5 1.5 0 0 1 4 2h16a1.5 1.5 0 0 1 1.5 1.5v16A1.5 1.5 0 0 1 20 21H4a1.5 1.5 0 0 1-1.5-1.5v-16z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M4.4 6.2a2.5 2.5 0 0 1 5 0a2.5 2.5 0 0 1-5 0z" />
+</vector>

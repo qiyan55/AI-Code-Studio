@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    AI Code Studio - 编译工具管理弹窗
+    文档 弹窗1: 编译工具管理弹窗
+    - 列表区：展示所有已创建编译工具
+    - 区分【手动创建】/【AI自动创建】标签
+    - 新增/编辑/删除/导入导出
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#0D1117">
+    
+    <!-- 标题栏 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:orientation="horizontal"
+        android:background="#161B22"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="12dp">
+        
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="编译工具管理"
+            android:textColor="#E6EDF3"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+        
+        <ImageButton
+            android:id="@+id/btn_import_config"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_import"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="导入配置" />
+            
+    </LinearLayout>
+    
+    <!-- 统计信息 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp">
+        
+        <TextView
+            android:id="@+id/tv_total_count"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="共 0 个工具"
+            android:textColor="#8B949E"
+            android:textSize="13sp" />
+        
+        <TextView
+            android:id="@+id/tv_auto_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="AI创建: 0"
+            android:textColor="#2196F3"
+            android:textSize="12sp"
+            android:layout_marginEnd="12dp" />
+        
+        <TextView
+            android:id="@+id/tv_manual_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="手动: 0"
+            android:textColor="#98C379"
+            android:textSize="12sp" />
+            
+    </LinearLayout>
+    
+    <!-- 工具列表（纯 Android SDK：ScrollView + LinearLayout，无 AndroidX 依赖） -->
+    <ScrollView
+        android:id="@+id/scroll_tools"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:padding="8dp">
+
+        <LinearLayout
+            android:id="@+id/container_tools"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+    </ScrollView>
+    
+    <!-- 底部操作栏 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#161B22"
+        android:padding="12dp">
+        
+        <Button
+            android:id="@+id/btn_add_tool"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:text="+ 新增工具"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/bg_button_blue"
+            android:layout_marginEnd="6dp" />
+        
+        <Button
+            android:id="@+id/btn_export_config"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:text="导出配置"
+            android:textColor="#2196F3"
+            android:background="@drawable/bg_button_outline"
+            android:layout_marginStart="6dp" />
+            
+    </LinearLayout>
+    
+</LinearLayout>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- 应用主题：使用原生 Android 深色主题，避免 AppCompat 依赖 -->
+    <style name="AICodeStudioTheme" parent="android:Theme.Material.NoActionBar">
+        <item name="android:colorPrimary">@color/colorPrimary</item>
+        <item name="android:colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="android:colorAccent">@color/colorAccent</item>
+        <item name="android:windowBackground">@color/background_dark</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+    </style>
+
+
+    <!--
+      弹窗进出场动画（Apple 风格）
+      由 DialogAnim.apply() 统一挂到 Dialog 的 Window 上，
+      这样全项目所有弹窗共用一套动效，无需各自设置。
+    -->
+    <style name="AppleDialogAnim" parent="@android:style/Animation">
+        <item name="android:windowEnterAnimation">@anim/dialog_enter</item>
+        <item name="android:windowExitAnimation">@anim/dialog_exit</item>
+    </style>
+
+    <!-- 设置页 Switch 统一样式 -->
+    <style name="SettingsSwitch">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:minHeight">48dp</item>
+    </style>
+
+</resources>

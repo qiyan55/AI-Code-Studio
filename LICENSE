@@ -1,0 +1,37 @@
+MIT License
+
+Copyright (c) 2026 AI Code Studio
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+## 第三方开源组件声明
+
+本项目使用了以下第三方开源组件，各组件遵循其自身的开源协议：
+
+- **llama.cpp** — MIT License（本地大模型推理引擎）
+- **sherpa-onnx** — Apache-2.0 License（语音识别）
+- **ONNX Runtime** — MIT License（推理运行时）
+- **Eclipse JDT Core (ECJ)** — EPL-2.0 License（Java 编译器）
+- **Android Open Source Project** — Apache-2.0 License（android.jar）
+- **AndroidX** — Apache-2.0 License（兼容库）
+- **Material Components** — Apache-2.0 License（UI 组件）
+- **Prism4j** — Apache-2.0 License（语法高亮）
+- **Markwon** — Apache-2.0 License（Markdown 渲染）

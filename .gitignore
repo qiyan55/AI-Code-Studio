@@ -1,0 +1,56 @@
+# ============================================
+# AI Code Studio .gitignore
+# ============================================
+
+# 构建产物
+build/
+build-merged/
+build_local/
+*.apk
+*.ap_
+*.dex
+*.class
+
+# 原生库（如果从源码编译，取消注释）
+# src/main/jniLibs/
+# *.so
+
+# 本地配置
+local.properties
+.gradle/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+
+# 系统
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 日志
+*.log
+crash.log
+aicode_crash.log
+
+# AI Code Studio 缓存
+.compile_cache/
+.kv_cache/
+.kv_snapshots/
+.models_cache/
+
+# 临时文件
+*.tmp
+*.bak
+*.bak_kvrefactor
+*~
+
+# 版本备份
+versions/
+
+# 签名（敏感信息，不提交）
+# signing/*.keystore
+# signing/*.jks

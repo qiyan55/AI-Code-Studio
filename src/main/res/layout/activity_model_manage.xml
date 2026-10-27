@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    AI Code Studio - 本地量化模型管理页面
+    文档 5.2 页面2
+    - 模型列表（名称/大小/量化精度/状态）
+    - 导入/删除/加载/卸载按钮
+    - 推理参数配置（上下文长度/温度/线程数）
+    - 云端/本地模式切换
+-->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0D1117">
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+        
+        <!-- 标题区 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+            
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="本地模型管理"
+                android:textColor="#E6EDF3"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+            
+            <!-- 模式切换 -->
+            <ToggleButton
+                android:id="@+id/toggle_mode"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:textOn="云端"
+                android:textOff="本地"
+                android:textColor="#2196F3"
+                android:background="@drawable/bg_toggle" />
+                
+        </LinearLayout>
+        
+        <!-- 模型列表卡片 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_card"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp">
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="已导入模型"
+                android:textColor="#8B949E"
+                android:textSize="13sp"
+                android:layout_marginBottom="8dp" />
+            
+            <LinearLayout
+                android:id="@+id/container_models"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+            
+            <Button
+                android:id="@+id/btn_import_model"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:text="+ 导入 GGUF 模型"
+                android:textColor="#2196F3"
+                android:background="@drawable/bg_button_outline"
+                android:layout_marginTop="8dp" />
+                
+        </LinearLayout>
+        
+        <!-- 推理参数配置卡片 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_card"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp">
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="推理参数配置"
+                android:textColor="#8B949E"
+                android:textSize="13sp"
+                android:layout_marginBottom="12dp" />
+            
+            <!-- 上下文长度 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="上下文长度: 4096"
+                android:textColor="#E6EDF3"
+                android:textSize="14sp"
+                android:id="@+id/tv_ctx_label" />
+            <SeekBar
+                android:id="@+id/seekbar_context"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="32768"
+                android:progress="4096"
+                android:progressDrawable="@drawable/bg_seekbar"
+                android:thumb="@drawable/thumb_seekbar" />
+            
+            <!-- 温度 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="温度: 0.7"
+                android:textColor="#E6EDF3"
+                android:textSize="14sp"
+                android:layout_marginTop="8dp"
+                android:id="@+id/tv_temp_label" />
+            <SeekBar
+                android:id="@+id/seekbar_temperature"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="100"
+                android:progress="70"
+                android:progressDrawable="@drawable/bg_seekbar"
+                android:thumb="@drawable/thumb_seekbar" />
+
+            <!-- 重复惩罚 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="重复惩罚: 1.1"
+                android:textColor="#E6EDF3"
+                android:textSize="14sp"
+                android:layout_marginTop="8dp"
+                android:id="@+id/tv_repeat_penalty_label" />
+            <SeekBar
+                android:id="@+id/seekbar_repeat_penalty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="30"
+                android:progress="11"
+                android:progressDrawable="@drawable/bg_seekbar"
+                android:thumb="@drawable/thumb_seekbar" />
+
+            <!-- 最大输出Token -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="最大输出Token: 2048"
+                android:textColor="#E6EDF3"
+                android:textSize="14sp"
+                android:layout_marginTop="8dp"
+                android:id="@+id/tv_token_label" />
+            <SeekBar
+                android:id="@+id/seekbar_max_tokens"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="8192"
+                android:progress="2048"
+                android:progressDrawable="@drawable/bg_seekbar"
+                android:thumb="@drawable/thumb_seekbar" />
+            
+            <!-- 线程数 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="线程数: 4"
+                android:textColor="#E6EDF3"
+                android:textSize="14sp"
+                android:layout_marginTop="8dp"
+                android:id="@+id/tv_thread_label" />
+            <SeekBar
+                android:id="@+id/seekbar_threads"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="16"
+                android:progress="4"
+                android:progressDrawable="@drawable/bg_seekbar"
+                android:thumb="@drawable/thumb_seekbar" />
+                
+        </LinearLayout>
+        
+        <!-- 使用说明卡片 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_info_card"
+            android:padding="12dp">
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="使用说明"
+                android:textColor="#2196F3"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="6dp" />
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1. 支持 GGUF/GGML 主流量化模型格式\n2. 切换本地模式后所有AI功能离线运行\n3. 推荐使用 Q4_K_M 量化精度平衡速度与质量\n4. 大上下文会占用更多内存，请合理设置"
+                android:textColor="#8B949E"
+                android:textSize="12sp"
+                android:lineSpacingExtra="4dp" />
+                
+        </LinearLayout>
+        
+    </LinearLayout>
+</ScrollView>

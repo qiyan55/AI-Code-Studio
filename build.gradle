@@ -1,0 +1,28 @@
+// ============================================
+// AI Code Studio build.gradle
+// ============================================
+// 注意：AI Code Studio 内置编译器（BuiltinCompiler）不使用 Gradle，
+//       此文件用于兼容 Android Studio 进行开发和调试。
+//       设备端编译请使用 APP 内的 `aics compile` 命令。
+// ============================================
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.1.4'
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
