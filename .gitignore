@@ -8,7 +8,6 @@ build-merged/
 build_local/
 *.apk
 *.ap_
-*.dex
 *.class
 
 # 原生库（如果从源码编译，取消注释）

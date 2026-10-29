@@ -1060,7 +1060,13 @@ public class BuiltinCompiler {
         }
     }
 
+
     private File findManifest(File dir) {
+        File direct = new File(dir, "src/main/AndroidManifest.xml");
+        if (direct.exists()) return direct;
+        direct = new File(dir, "AndroidManifest.xml");
+        if (direct.exists()) return direct;
+        
         File[] fs = dir.listFiles();
         if (fs == null) return null;
         for (File f : fs) {
@@ -1075,6 +1081,7 @@ public class BuiltinCompiler {
         }
         return null;
     }
+
 
     // 递归找真正的项目根：含 AndroidManifest.xml 且有 src/main/java 的目录
     private File findProjectRootRecursive(File dir, int depth) {
