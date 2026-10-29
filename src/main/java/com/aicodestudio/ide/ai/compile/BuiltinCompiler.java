@@ -198,7 +198,7 @@ public class BuiltinCompiler {
             prepared = true;
             return true;
         } catch (Throwable t) {
-            prepareError = "工具链解压失败: " + t.getMessage();
+            prepareError = "工具链解压失败: " + describe(t);
             Log.e(TAG, "prepare failed", t);
             return false;
         }

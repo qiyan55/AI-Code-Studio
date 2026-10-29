@@ -19,6 +19,7 @@ jobs:
         $ANDROID_HOME/build-tools/34.0.0/aapt2 compile --dir src/main/res -o build/res.zip
         $ANDROID_HOME/build-tools/34.0.0/aapt2 link -o build/resources.ap_ build/res.zip \
           -I $ANDROID_JAR \
+            -A src/main/assets \
           --manifest src/main/AndroidManifest.xml \
           --java build/gen \
           --min-sdk-version 26 --target-sdk-version 34
