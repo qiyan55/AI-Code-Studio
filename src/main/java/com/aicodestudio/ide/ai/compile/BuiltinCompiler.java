@@ -240,12 +240,10 @@ public class BuiltinCompiler {
                 if (out != null) try { out.close(); } catch (IOException ignored) {}
             }
         }
-        if (assetName.endsWith(".dex")) {
-            if (!target.setReadOnly()) {
-                target.setWritable(false, false);
-            }
-            Log.i(TAG, "dex read-only: " + assetName + " canWrite=" + target.canWrite());
+        if (!target.setReadOnly()) {
+            target.setWritable(false, false);
         }
+        Log.i(TAG, "file read-only: " + assetName + " canWrite=" + target.canWrite());
     }
 
     /** 读取工具链版本标记文件，不存在返回 null */
@@ -314,6 +312,7 @@ public class BuiltinCompiler {
         // （用户可能选了解压后的外层目录，真正源码在子目录如 AICS_source/）
         if (findManifest(projectDir) == null) {
             File deeper = findProjectRootRecursive(projectDir, 0);
+            if (deeper == null && projectDir.getName().startsWith("AI_Code")) { deeper = projectDir; }
             if (deeper != null) {
                 log.append("[project] 自动定位项目根: ").append(deeper.getAbsolutePath()).append('\n');
                 projectDir = deeper;
