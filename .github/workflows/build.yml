@@ -29,9 +29,7 @@ jobs:
           -classpath "$ANDROID_JAR:libs/*" -d build/classes @build/sources.txt
         find build/classes -name "*.class" > build/classes.txt
         $ANDROID_HOME/build-tools/34.0.0/d8 --min-api 26 --lib $ANDROID_JAR --output build/dex @build/classes.txt
-        mv src/main/assets src/main/assets_tmp
         python3 tools/pack_std.py build/resources.ap_ build/dex/classes.dex src/main/jniLibs build/app-unsigned.apk arm64-v8a
-        mv src/main/assets_tmp src/main/assets
         $ANDROID_HOME/build-tools/34.0.0/zipalign -p 4 build/app-unsigned.apk build/app-aligned.apk
         keytool -genkey -v -keystore build/debug.keystore -alias aicode -keyalg RSA -keysize 2048 -validity 10000 -storepass aicode123 -keypass aicode123 -dname "CN=Android Debug,O=Android,C=US"
         $ANDROID_HOME/build-tools/34.0.0/apksigner sign --ks build/debug.keystore --ks-pass pass:aicode123 --key-pass pass:aicode123 --out build/AI_Code_Studio.apk build/app-aligned.apk

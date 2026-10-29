@@ -51,20 +51,9 @@ def main():
                 z_out.write(full, "lib/%s/%s" % (entry_abi, f), zipfile.ZIP_STORED)
                 n_so += 1
 
-    # === 新增：打包 assets 目录 ===
-    n_assets = 0
-    if os.path.isdir(assets_dir):
-        for root, _, files in os.walk(assets_dir):
-            for f in sorted(files):
-                full = os.path.join(root, f)
-                rel_path = os.path.relpath(full, assets_dir)
-                entry_name = "assets/" + rel_path.replace("\\", "/")
-                z_out.write(full, entry_name, zipfile.ZIP_DEFLATED)
-                n_assets += 1
-
     z_out.close()
 
-    print("  资源条目 %d, .so %d 个, assets %d 个" % (n_res, n_so, n_assets))
+    print("  资源条目 %d, .so %d 个" % (n_res, n_so))
     print("  unsigned APK = %d bytes (%.2f MB)" % (
         os.path.getsize(out), os.path.getsize(out) / 1048576.0))
     return 0
