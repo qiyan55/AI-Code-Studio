@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_toggle_mode"
+        android:title="切换云端/本地模式" />
+    <item
+        android:id="@+id/menu_clear_chat"
+        android:title="清空对话" />
+    <item
+        android:id="@+id/menu_model_settings"
+        android:title="模型管理" />
+    <item
+        android:id="@+id/menu_settings"
+        android:title="系统设置" />
+</menu>

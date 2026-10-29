@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- AI Code Studio 深色主题配色 -->
+    <!-- 背景色 -->
+    <color name="bg_primary">#0D1117</color>
+    <color name="bg_secondary">#161B22</color>
+    <color name="bg_card">#1C2333</color>
+    <color name="bg_card_hover">#21262D</color>
+    <color name="bg_input">#0D1117</color>
+    <color name="bg_dialog">#161B22</color>
+
+    <!-- 文字色 -->
+    <color name="text_primary">#E6EDF3</color>
+    <color name="text_secondary">#8B949E</color>
+    <color name="text_tertiary">#484F58</color>
+    <color name="text_white">#FFFFFF</color>
+
+    <!-- 强调色 -->
+    <color name="accent_blue">#2196F3</color>
+    <color name="accent_blue_dark">#1F6FEB</color>
+    <color name="accent_green">#2EA043</color>
+    <color name="accent_orange">#F0883E</color>
+    <color name="accent_red">#F85149</color>
+    <color name="accent_purple">#BC8CFF</color>
+
+    <!-- 语法高亮色 -->
+    <color name="syntax_keyword">#FF7B72</color>
+    <color name="syntax_string">#A5D6FF</color>
+    <color name="syntax_type">#56B6C2</color>
+    <color name="syntax_number">#79C0FF</color>
+    <color name="syntax_comment">#8B949E</color>
+    <color name="syntax_method">#D2A8FF</color>
+
+    <!-- 文件类型色 -->
+    <color name="file_java">#56B6C2</color>
+    <color name="file_kotlin">#7FC4FF</color>
+    <color name="file_xml">#F0883E</color>
+    <color name="file_gradle">#98C379</color>
+    <color name="file_folder">#D4A72C</color>
+
+    <!-- 日志级别色 -->
+    <color name="log_info">#8B949E</color>
+    <color name="log_warn">#D4A72C</color>
+    <color name="log_error">#F85149</color>
+    <color name="log_success">#2EA043</color>
+    <color name="log_debug">#484F58</color>
+
+    <!-- 边框色 -->
+    <color name="border_primary">#30363D</color>
+    <color name="border_focus">#2196F3</color>
+
+    <!-- 状态栏 -->
+    <color name="statusbar_bg">#161B22</color>
+
+    <!-- Material / AppCompat 标准颜色名（兼容主题引用） -->
+    <color name="colorPrimary">@color/accent_blue</color>
+    <color name="colorPrimaryDark">@color/bg_secondary</color>
+    <color name="colorAccent">@color/accent_blue</color>
+    <color name="background_dark">@color/bg_primary</color>
+</resources>

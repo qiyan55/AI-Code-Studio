@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  满幅版停止方块：专供终止按钮大圆使用。
+  原 ic_stop 图形（含描边 2.2 外扩 1.1）实际边界 x∈[5.9,18.1] y∈[3.9,20.1]，
+  即 12.2×16.2，在 24dp 画布里四周留白明显。
+  这里把 viewport 收到 17 并用 group 平移 -3.5 居中，填满画布。
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="17"
+    android:viewportHeight="17">
+    <group
+        android:translateX="-3.5"
+        android:translateY="-3.5">
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="2.2"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:fillColor="@android:color/transparent"
+            android:pathData="M7 6.6a1.6 1.6 0 0 1 1.6-1.6h6.8A1.6 1.6 0 0 1 17 6.6v10.8a1.6 1.6 0 0 1 -1.6 1.6H8.6A1.6 1.6 0 0 1 7 17.4V6.6z" />
+    </group>
+</vector>

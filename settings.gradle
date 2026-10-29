@@ -1,0 +1,25 @@
+// ============================================
+// AI Code Studio settings.gradle
+// ============================================
+// 注意：此文件用于兼容 Android Studio，
+//       设备端内置编译器（BuiltinCompiler）不使用 Gradle。
+// ============================================
+
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name = "AI Code Studio"
+include ':app'

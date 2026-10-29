@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    AI Code Studio - AI聊天对话面板
+    文档 5.2: 右上 AI聊天面板
+    - 聊天消息列表
+    - 底部输入框 + 发送按钮
+    - 快捷按钮：将选中代码发送AI
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#0D1117">
+    
+    <!-- 标题栏 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:background="#161B22"
+        android:gravity="center_vertical"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp">
+        
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="AI 对话"
+            android:textColor="#E6EDF3"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+        
+        <!-- 模式指示器 -->
+        <TextView
+            android:id="@+id/tv_mode_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="云端"
+            android:textColor="#2196F3"
+            android:textSize="12sp"
+            android:background="@drawable/bg_mode_chip"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp" />
+            
+    </LinearLayout>
+    
+    <!-- 消息列表（纯 Android SDK：ScrollView + LinearLayout，无 AndroidX 依赖） -->
+    <ScrollView
+        android:id="@+id/scroll_messages"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:padding="8dp">
+
+        <LinearLayout
+            android:id="@+id/container_messages"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+    </ScrollView>
+    
+    <!-- 快捷操作栏 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#161B22"
+        android:padding="4dp">
+        
+        <Button
+            android:id="@+id/btn_send_selection"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:text="发送选中代码"
+            android:textSize="12sp"
+            android:textColor="#2196F3"
+            android:background="@drawable/bg_button_outline"
+            android:layout_marginEnd="4dp" />
+        
+        <Button
+            android:id="@+id/btn_clear_chat"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:text="清空对话"
+            android:textSize="12sp"
+            android:textColor="#F0883E"
+            android:background="@drawable/bg_button_outline"
+            android:layout_marginStart="4dp" />
+            
+    </LinearLayout>
+    
+    <!-- 输入区域 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#161B22"
+        android:padding="8dp"
+        android:gravity="center_vertical">
+        
+        <EditText
+            android:id="@+id/et_message_input"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="输入开发需求..."
+            android:textColorHint="#484F58"
+            android:textColor="#E6EDF3"
+            android:background="@drawable/bg_input"
+            android:padding="12dp"
+            android:maxLines="4"
+            android:inputType="textMultiLine" />
+        
+        <ImageButton
+            android:id="@+id/btn_send"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="8dp"
+            android:src="@drawable/ic_send"
+            android:background="@drawable/bg_button_blue"
+            android:contentDescription="发送" />
+            
+    </LinearLayout>
+    
+</LinearLayout>

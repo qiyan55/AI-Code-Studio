@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- AI消息气泡 (左对齐, 灰色) -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="start"
+    android:orientation="horizontal"
+    android:gravity="center_vertical">
+
+    <!-- AI头像指示器 -->
+    <View
+        android:layout_width="8dp"
+        android:layout_height="8dp"
+        android:background="@drawable/bg_send_button"
+        android:layout_marginEnd="8dp" />
+
+    <TextView
+        android:id="@android:id/text1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_bubble_ai"
+        android:textColor="#E6EDF3"
+        android:textSize="14sp"
+        android:lineSpacingExtra="2dp"
+        android:maxWidth="280dp" />
+
+</LinearLayout>

@@ -1,0 +1,101 @@
+# ============================================
+# AI Code Studio .gitattributes
+# ============================================
+
+# 自动检测文本文件并规范化行尾
+* text=auto eol=lf
+
+# 明确指定文本文件
+*.java      text eol=lf
+*.xml       text eol=lf
+*.kt        text eol=lf
+*.gradle    text eol=lf
+*.properties text eol=lf
+*.pro       text eol=lf
+*.md        text eol=lf
+*.sh        text eol=lf
+*.bat       text eol=crlf
+*.py        text eol=lf
+*.c         text eol=lf
+*.h         text eol=lf
+*.json      text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+*.cfg       text eol=lf
+*.ini       text eol=lf
+
+# 明确指定二进制文件（不做行尾转换）
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.gif       binary
+*.webp      binary
+*.bmp       binary
+*.ico       binary
+*.svg       text
+*.9.png     binary
+
+# 音频文件
+*.mp3       binary
+*.wav       binary
+*.ogg       binary
+*.m4a       binary
+
+# 视频文件
+*.mp4       binary
+*.avi       binary
+*.mkv       binary
+
+# 编译产物
+*.jar       binary
+*.aar       binary
+*.apk       binary
+*.ap_       binary
+*.dex       binary
+*.class     binary
+*.so        binary
+*.a         binary
+*.o         binary
+
+# 模型文件
+*.gguf      binary
+*.bin       binary
+*.onnx      binary
+*.pt        binary
+*.pth       binary
+
+# 压缩包
+*.zip       binary
+*.tar       binary
+*.gz        binary
+*.tgz       binary
+*.rar       binary
+*.7z        binary
+
+# 证书/密钥
+*.keystore  binary
+*.jks       binary
+*.p12       binary
+*.pfx       binary
+*.pem       text
+*.crt       text
+*.cer       binary
+
+# 文档
+*.pdf       binary
+*.doc       binary
+*.docx      binary
+*.xls       binary
+*.xlsx      binary
+*.ppt       binary
+*.pptx      binary
+
+# 字体
+*.ttf       binary
+*.otf       binary
+*.woff      binary
+*.woff2     binary
+
+# Git LFS（如果使用）
+# *.gguf      filter=lfs diff=lfs merge=lfs -text
+# *.onnx      filter=lfs diff=lfs merge=lfs -text

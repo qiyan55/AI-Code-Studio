@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- 思考：灯泡（主体再放大，底部横线保持原宽，无顶部光线，描边风格统一） -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2.2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M7.8 9.8a4.2 4.2 0 0 1 8.4 0c0 1.9-1 2.9-1.9 3.9-.9.9-1.2 1.4-1.2 2.5h-2.1c0-1.1-.4-1.6-1.2-2.5-.9-1-1.9-2-1.9-3.9z" />
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2.2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M9.5 17.4h5" />
+</vector>

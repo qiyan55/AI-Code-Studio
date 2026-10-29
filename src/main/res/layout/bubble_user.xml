@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 用户消息气泡 (右对齐, 蓝色) -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/text1"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="end"
+    android:background="@drawable/bg_bubble_user"
+    android:textColor="#FFFFFF"
+    android:textSize="14sp"
+    android:lineSpacingExtra="2dp"
+    android:maxWidth="280dp" />

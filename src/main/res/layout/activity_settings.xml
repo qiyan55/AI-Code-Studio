@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    AI Code Studio - 系统全局设置页面
+    文档 弹窗3: 系统全局设置弹窗
+    分类: 编辑器设置/AI联动设置/编译设置/外观设置
+-->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0D1117">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- 标题 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="系统设置"
+            android:textColor="#E6EDF3"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp" />
+
+        <!-- ===== AI联动设置卡片 ===== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_card"
+            android:padding="14dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="AI 联动设置"
+                android:textColor="#2196F3"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp" />
+
+            <Switch
+                android:id="@+id/sw_auto_send_error"
+                style="@style/SettingsSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="代码错误自动发送AI"
+                android:checked="true" />
+
+            <Switch
+                android:id="@+id/sw_detect_function"
+                style="@style/SettingsSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="函数完成自动检测"
+                android:checked="true" />
+
+            <Switch
+                android:id="@+id/sw_detect_file"
+                style="@style/SettingsSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="文件编辑完成后整体检测"
+                android:checked="true" />
+
+            <Switch
+                android:id="@+id/sw_auto_push_compile"
+                style="@style/SettingsSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="编译失败自动推送日志至AI"
+                android:checked="true" />
+
+            <Switch
+                android:id="@+id/sw_allow_auto_tool"
+                style="@style/SettingsSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="允许AI自动新增编译工具"
+                android:checked="true" />
+
+            <Switch
+                android:id="@+id/sw_auto_apply_fix"
+                style="@style/SettingsSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="AI修复代码自动覆盖源码"
+                android:checked="false" />
+
+            <Switch
+                android:id="@+id/sw_confirm_before_apply"
+                style="@style/SettingsSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="覆盖前弹窗确认"
+                android:checked="true" />
+
+        </LinearLayout>
+
+        <!-- ===== 编辑器设置卡片 ===== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_card"
+            android:padding="14dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="编辑器设置"
+                android:textColor="#98C379"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="语法高亮引擎"
+                android:textColor="#8B949E"
+                android:textSize="13sp"
+                android:layout_marginBottom="4dp" />
+
+            <Spinner
+                android:id="@+id/spinner_syntax_engine"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:background="@drawable/bg_input"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="代码自动补全"
+                android:textColor="#8B949E"
+                android:textSize="13sp"
+                android:layout_marginBottom="4dp" />
+
+            <RadioGroup
+                android:id="@+id/rg_autocomplete"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/rb_ac_local"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="仅本地"
+                    android:textColor="#E6EDF3"
+                    android:buttonTint="#2196F3"
+                    android:checked="true" />
+
+                <RadioButton
+                    android:id="@+id/rb_ac_ai"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="AI智能补全"
+                    android:textColor="#E6EDF3"
+                    android:buttonTint="#2196F3" />
+
+                <RadioButton
+                    android:id="@+id/rb_ac_both"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="两者都启用"
+                    android:textColor="#E6EDF3"
+                    android:buttonTint="#2196F3" />
+
+            </RadioGroup>
+
+        </LinearLayout>
+
+        <!-- ===== 编译设置卡片 ===== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_card"
+            android:padding="14dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="编译设置"
+                android:textColor="#F0883E"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp" />
+
+            <Switch
+                android:id="@+id/sw_save_before_compile"
+                style="@style/SettingsSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="编译前自动保存所有文件"
+                android:checked="true" />
+
+            <Switch
+                android:id="@+id/sw_stop_on_error"
+                style="@style/SettingsSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="遇到错误时停止编译"
+                android:checked="false" />
+
+            <Switch
+                android:id="@+id/sw_allow_download"
+                style="@style/SettingsSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="允许AI自动下载编译工具"
+                android:checked="false" />
+
+        </LinearLayout>
+
+        <!-- ===== 外观设置卡片 ===== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_card"
+            android:padding="14dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="外观设置"
+                android:textColor="#BC8CFF"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="主题"
+                android:textColor="#8B949E"
+                android:textSize="13sp"
+                android:layout_marginBottom="4dp" />
+
+            <RadioGroup
+                android:id="@+id/rg_theme"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
+
+                <RadioButton
+                    android:id="@+id/rb_theme_dark"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="深色(默认)"
+                    android:textColor="#E6EDF3"
+                    android:buttonTint="#2196F3"
+                    android:checked="true" />
+
+                <RadioButton
+                    android:id="@+id/rb_theme_darker"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="纯黑"
+                    android:textColor="#E6EDF3"
+                    android:buttonTint="#2196F3" />
+
+            </RadioGroup>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="编辑器字体大小"
+                android:textColor="#8B949E"
+                android:textSize="13sp"
+                android:layout_marginBottom="4dp" />
+
+            <SeekBar
+                android:id="@+id/seekbar_font_size"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="20"
+                android:progress="14"
+                android:progressDrawable="@drawable/bg_seekbar"
+                android:thumb="@drawable/thumb_seekbar" />
+
+        </LinearLayout>
+
+        <!-- 使用说明 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_info_card"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="设置说明"
+                android:textColor="#2196F3"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="6dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="• AI联动设置控制AI如何参与开发流程\n• 编辑器设置控制代码显示和补全行为\n• 编译设置控制构建过程的行为\n• 外观设置控制整体视觉风格\n• 修改后自动保存，无需手动确认"
+                android:textColor="#8B949E"
+                android:textSize="12sp"
+                android:lineSpacingExtra="4dp" />
+
+        </LinearLayout>
+
+        <!-- 关闭按钮 -->
+        <Button
+            android:id="@+id/btn_close_settings"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:text="关闭"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/bg_button_blue" />
+
+    </LinearLayout>
+</ScrollView>

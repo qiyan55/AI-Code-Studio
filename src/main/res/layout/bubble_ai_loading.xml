@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- AI正在思考中 (左对齐, 灰色+动画点点) -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="start"
+    android:orientation="horizontal"
+    android:gravity="center_vertical">
+
+    <View
+        android:layout_width="8dp"
+        android:layout_height="8dp"
+        android:background="@drawable/bg_send_button"
+        android:layout_marginEnd="8dp" />
+
+    <TextView
+        android:id="@android:id/text1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_bubble_ai"
+        android:textColor="#8B949E"
+        android:textSize="14sp"
+        android:text="思考中..." />
+
+</LinearLayout>

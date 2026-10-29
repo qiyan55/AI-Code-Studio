@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- iOS 底部 sheet 风格：仅顶部两角圆角 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#FF1C2333" />
+    <corners android:topLeftRadius="14dp" android:topRightRadius="14dp" />
+</shape>

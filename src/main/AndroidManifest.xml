@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.aicodestudio.ide"
+    android:versionCode="79"
+    android:versionName="1.76-fix4">
+
+    <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="34" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <!-- v1.153ae：退后台轻量保活（不推理，仅让进程短时间不被系统回收） -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- v1.48g：targetSdk 34 下前台服务通知必需的通知权限（Android 13+ 运行时请求） -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- v1.48g：targetSdk 34 下前台服务类型声明必需（remote 数据通道） -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
+    <!-- Android 11+ 分区存储：读 .gguf 这类非媒体文件需要「所有文件访问权限」。
+         没有它也能用——走系统文件选择器（SAF）选文件，功能完整，仅多一次拷贝。 -->
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+
+    <application
+        android:name=".ai.AICodeStudioApp"
+        android:label="AI Code Studio"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:allowBackup="true"
+        android:supportsRtl="true"
+        android:largeHeap="true"
+        android:extractNativeLibs="true"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:theme="@style/AICodeStudioTheme">
+
+        <!-- v1.153ae：退后台保活服务（轻量通知，回前台即停） -->
+        <service
+            android:name=".ai.StayAliveService"
+            android:exported="false"
+            android:foregroundServiceType="shortService"
+            android:stopWithTask="false" />
+
+        <!-- RemoteConnector：远程连接器前台服务（云端 TCP 控制手机端） -->
+        <service
+            android:name=".ai.remote.RemoteConnectorService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync"
+            android:stopWithTask="false" />
+
+        <!-- 安装代理 ContentProvider：把私有缓存里的 APK 暴露给系统安装器
+             （PackageInstaller 自动安装被部分 ROM 安全守护静默拦截时，
+             走系统安装器 ACTION_VIEW 与手动安装同路径，可靠可用） -->
+        <provider
+            android:name=".ai.util.ApkFileProvider"
+            android:authorities="com.aicodestudio.ide.apk"
+            android:exported="false"
+            android:grantUriPermissions="true" />
+
+        <!-- 欢迎 / 主页界面（启动页） -->
+        <activity
+            android:name=".ai.WelcomeActivity"
+            android:exported="true"
+            android:label="AI Code Studio"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!--
+          存储访问代理：透明无界面 Activity。
+          弹窗拿不到 onActivityResult / onRequestPermissionsResult，
+          用它统一代理「申请存储权限」「调系统文件选择器」，结果交给静态回调后立即 finish。
+        -->
+        <activity
+            android:name=".ai.util.StorageAccessActivity"
+            android:exported="false"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:launchMode="standard"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- 工作区 ①：AI 对话界面（独立全屏） -->
+
+        <activity
+            android:name=".ai.ChatActivity"
+            android:exported="false"
+            android:label="AI 对话"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- 工作区 ②：代码编辑器界面（独立全屏） -->
+        <activity
+            android:name=".ai.EditorActivity"
+            android:exported="false"
+            android:label="代码编辑器"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- 工作区 ③：编译运行界面（独立全屏） -->
+        <activity
+            android:name=".ai.RunActivity"
+            android:exported="false"
+            android:label="编译运行"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- 页面1：主工作界面（保留兼容，不再作为入口） -->
+        <activity
+            android:name=".ai.MainActivity"
+            android:exported="true"
+            android:label="AI Code Studio"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- 页面2：本地量化模型管理页面 -->
+        <activity
+            android:name=".ai.models.ModelManageActivity"
+            android:exported="false"
+            android:label="本地量化模型管理" />
+
+        <!-- AI 对话独立页（保留，可由外部调起） -->
+        <activity
+            android:name=".ai.chat.AIChatActivity"
+            android:exported="false"
+            android:label="AI 对话" />
+
+        <!-- 系统设置页（保留兼容） -->
+        <activity
+            android:name=".ai.service.SettingsActivity"
+            android:exported="false"
+            android:label="设置" />
+
+        <!-- 历史：编译工具管理独立页（现已改为弹窗，保留兼容） -->
+        <activity
+            android:name=".ai.tools.BuildToolManageActivity"
+            android:exported="false"
+            android:label="编译工具管理" />
+
+        <activity
+            android:name=".ai.tools.EditBuildToolActivity"
+            android:exported="false"
+            android:label="编辑编译工具" />
+
+        <!-- 后台服务已移除：旧版 AIBackgroundService（START_STICKY）无人启动，
+             但会误导系统后台耗电统计 / 被系统反复拉起，删除声明避免后台占用 -->
+    </application>
+
+</manifest>

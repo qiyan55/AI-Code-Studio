@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    AI Code Studio - 新增/编辑编译工具对话框
+    文档 弹窗2: 新增/编辑自定义编译工具对话框
+    表单: 工具名称/下载链接/项目类型/编译命令/运行命令/启用开关
+-->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#161B22"
+    android:padding="20dp">
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        
+        <!-- 标题 -->
+        <TextView
+            android:id="@+id/tv_dialog_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="新增编译工具"
+            android:textColor="#E6EDF3"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp" />
+        
+        <!-- 工具名称 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="工具名称 *"
+            android:textColor="#8B949E"
+            android:textSize="13sp"
+            android:layout_marginBottom="4dp" />
+        <EditText
+            android:id="@+id/et_tool_name"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:hint="如: Gradle Build Tool"
+            android:textColorHint="#484F58"
+            android:textColor="#E6EDF3"
+            android:background="@drawable/bg_input"
+            android:padding="10dp"
+            android:inputType="text"
+            android:layout_marginBottom="12dp" />
+        
+        <!-- 下载链接 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="下载链接"
+            android:textColor="#8B949E"
+            android:textSize="13sp"
+            android:layout_marginBottom="4dp" />
+        <EditText
+            android:id="@+id/et_download_url"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:hint="https://example.com/tool.zip"
+            android:textColorHint="#484F58"
+            android:textColor="#E6EDF3"
+            android:background="@drawable/bg_input"
+            android:padding="10dp"
+            android:inputType="textUri"
+            android:layout_marginBottom="12dp" />
+        
+        <!-- 项目类型 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="适用项目类型 *"
+            android:textColor="#8B949E"
+            android:textSize="13sp"
+            android:layout_marginBottom="4dp" />
+        <RadioGroup
+            android:id="@+id/rg_project_type"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+            
+            <RadioButton
+                android:id="@+id/rb_android"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Android"
+                android:textColor="#E6EDF3"
+                android:buttonTint="#2196F3" />
+            <RadioButton
+                android:id="@+id/rb_cpp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="C++"
+                android:textColor="#E6EDF3"
+                android:buttonTint="#2196F3" />
+            <RadioButton
+                android:id="@+id/rb_python"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Python"
+                android:textColor="#E6EDF3"
+                android:buttonTint="#2196F3" />
+            <RadioButton
+                android:id="@+id/rb_java"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Java"
+                android:textColor="#E6EDF3"
+                android:buttonTint="#2196F3" />
+                
+        </RadioGroup>
+        <RadioButton
+            android:id="@+id/rb_custom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="自定义项目"
+            android:textColor="#E6EDF3"
+            android:buttonTint="#2196F3"
+            android:layout_marginBottom="12dp" />
+        
+        <!-- 编译命令模板 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="编译命令模板"
+            android:textColor="#8B949E"
+            android:textSize="13sp"
+            android:layout_marginBottom="4dp" />
+        <EditText
+            android:id="@+id/et_compile_cmd"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:hint="如: javac {file} -d {outpath}"
+            android:textColorHint="#484F58"
+            android:textColor="#E6EDF3"
+            android:background="@drawable/bg_input"
+            android:padding="10dp"
+            android:inputType="text"
+            android:layout_marginBottom="12dp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="占位符: {file}=源文件 {outpath}=输出路径 {project}=项目路径"
+            android:textColor="#484F58"
+            android:textSize="11sp"
+            android:layout_marginBottom="12dp" />
+        
+        <!-- 运行命令模板 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="运行命令模板"
+            android:textColor="#8B949E"
+            android:textSize="13sp"
+            android:layout_marginBottom="4dp" />
+        <EditText
+            android:id="@+id/et_run_cmd"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:hint="如: java -cp {outpath} Main"
+            android:textColorHint="#484F58"
+            android:textColor="#E6EDF3"
+            android:background="@drawable/bg_input"
+            android:padding="10dp"
+            android:inputType="text"
+            android:layout_marginBottom="12dp" />
+        
+        <!-- CPU架构选择 (文档 10.4) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CPU架构过滤"
+            android:textColor="#8B949E"
+            android:textSize="13sp"
+            android:layout_marginBottom="4dp" />
+        <Spinner
+            android:id="@+id/spinner_arch"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_input"
+            android:layout_marginBottom="12dp" />
+        
+        <!-- 启用开关 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+            
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="启用此工具"
+                android:textColor="#E6EDF3"
+                android:textSize="14sp" />
+            
+            <Switch
+                android:id="@+id/switch_enabled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:thumbTint="#2196F3"
+                android:trackTint="#30363D" />
+                
+        </LinearLayout>
+        
+        <!-- 按钮 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            
+            <Button
+                android:id="@+id/btn_cancel"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:text="取消"
+                android:textColor="#8B949E"
+                android:background="@drawable/bg_button_outline"
+                android:layout_marginEnd="6dp" />
+            
+            <Button
+                android:id="@+id/btn_save"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:text="确认保存"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/bg_button_blue"
+                android:layout_marginStart="6dp" />
+                
+        </LinearLayout>
+        
+    </LinearLayout>
+</ScrollView>
