@@ -77,11 +77,15 @@ public class VoiceEngine {
     private boolean initStarted;
     private boolean libLoaded;
 
+    private final java.util.concurrent.atomic.AtomicBoolean isInitializing = new java.util.concurrent.atomic.AtomicBoolean(false);
+
     /** App 启动时调用：异步预加载，不阻塞主线程 */
-    public synchronized void init(Context ctx) {
+    public void init(Context ctx) {
         if (initStarted && status != STATUS_ERROR) return;
+        if (!isInitializing.compareAndSet(false, true)) return; // 防止并发重入
         initStarted = true;
         appContext = ctx.getApplicationContext();
+        
         new Thread(new Runnable() {
             @Override public void run() {
                 try {
@@ -99,6 +103,7 @@ public class VoiceEngine {
                     status = STATUS_ERROR;
                 }
                 notifyStatus();
+                isInitializing.set(false);
             }
         }).start();
     }
