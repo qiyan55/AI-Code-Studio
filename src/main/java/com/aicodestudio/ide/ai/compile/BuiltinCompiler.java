@@ -620,7 +620,18 @@ public class BuiltinCompiler {
             String apkName = (pkg != null && pkg.length() > 0
                     ? pkg.substring(pkg.lastIndexOf('.') + 1) : "app") + "-debug.apk";
             File signed = new File(apkDir, apkName);
-            String signOut = runApksigner(unsigned, signed);
+            
+            // 【关键修复】优先使用项目根目录 signing/aicode.keystore（与 GitHub Actions 保持一致）
+            // 只有找不到时，才退回到 assets 里的 debug.keystore
+            File customKeystore = new File(projectDir, "signing/aicode.keystore");
+            if (!customKeystore.exists()) {
+                customKeystore = keystoreFile; // fallback to debug
+                log.append("[apksigner] 未找到标准 key，使用内置 debug key\n");
+            } else {
+                log.append("[apksigner] 发现标准 key，使用: " + customKeystore.getAbsolutePath() + "\n");
+            }
+            
+            String signOut = runApksigner(unsigned, signed, customKeystore);
             if (signOut != null && signOut.length() > 0) log.append("[apksigner]\n").append(signOut.trim()).append('\n');
             if (!signed.exists() || signed.length() == 0) {
                 r.error = "APK 签名失败:\n" + (signOut == null ? "" : signOut);
@@ -932,7 +943,7 @@ public class BuiltinCompiler {
 
     /** 反射调用 apksig 库签名：unsigned.apk → signed.apk（内置 debug keystore）。
      *  用库 API（ApkSigner.Builder）而非 ApkSignerTool.main，避免 System.exit 杀进程。 */
-    private String runApksigner(File input, File output) throws Exception {
+    private String runApksigner(File input, File output, File keystoreFile) throws Exception {
         File optDir = new File(toolDir, "opt");
         if (!optDir.exists() && !optDir.mkdirs()) optDir = null;
         ClassLoader cl = new dalvik.system.DexClassLoader(
@@ -971,7 +982,7 @@ public class BuiltinCompiler {
             signerBuilder.getClass().getMethod("setOutputApk", File.class).invoke(signerBuilder, output);
             signerBuilder.getClass().getMethod("setV1SigningEnabled", boolean.class).invoke(signerBuilder, true);
             signerBuilder.getClass().getMethod("setV2SigningEnabled", boolean.class).invoke(signerBuilder, true);
-            signerBuilder.getClass().getMethod("setV3SigningEnabled", boolean.class).invoke(signerBuilder, false);
+            signerBuilder.getClass().getMethod("setV3SigningEnabled", boolean.class).invoke(signerBuilder, true);
             Object signer = signerBuilder.getClass().getMethod("build").invoke(signerBuilder);
             signer.getClass().getMethod("sign").invoke(signer);
         } catch (Throwable t) {
