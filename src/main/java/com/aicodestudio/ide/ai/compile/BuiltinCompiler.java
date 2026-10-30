@@ -424,6 +424,14 @@ public class BuiltinCompiler {
             }
             linkArgs.add(resZip.getAbsolutePath());
             linkArgs.add("--java"); linkArgs.add(genDir.getAbsolutePath());
+            
+            // 强制用 aapt2 打包 assets（避免 Java 手动合并导致文件丢失）
+            File assetsDir = findDir(projectDir, "assets");
+            if (assetsDir != null) {
+                linkArgs.add("-A");
+                linkArgs.add(assetsDir.getAbsolutePath());
+                log.append("[aapt2] 已包含 assets 目录: ").append(assetsDir.getAbsolutePath()).append('\n');
+            }
             String c2 = runProcess(aapt2File, linkArgs.toArray(new String[0]));
             log.append("[aapt2 link]\n").append(c2 == null ? "" : c2.trim()).append('\n');
             if (!baseApk.exists() || baseApk.length() == 0) {
@@ -649,25 +657,24 @@ public class BuiltinCompiler {
             // 收集需要打包的文件：entryName -> file
             java.util.Map<String, File> toAdd = new java.util.LinkedHashMap<>();
 
-            // 1. jniLibs/arm64-v8a/*.so → lib/arm64-v8a/*.so
+            // 1. jniLibs/递归收集所有 .so
             File jniLibsDir = findDir(projectDir, "jniLibs");
             if (jniLibsDir != null) {
-                File[] abiDirs = jniLibsDir.listFiles();
-                if (abiDirs != null) {
-                    for (File abiDir : abiDirs) {
-                        if (!abiDir.isDirectory()) continue;
-                        String abiName = abiDir.getName();
-                        File[] soFiles = abiDir.listFiles();
-                        if (soFiles == null) continue;
-                        for (File so : soFiles) {
-                            if (so.isFile() && so.getName().endsWith(".so")) {
-                                String entry = "lib/" + abiName + "/" + so.getName();
-                                toAdd.put(entry, so);
-                                count++;
-                            }
-                        }
-                    }
+                java.util.List<File> soFiles = new java.util.ArrayList<>();
+                collectFilesRecursive(jniLibsDir, soFiles);
+                String libsBase = jniLibsDir.getAbsolutePath();
+                for (File so : soFiles) {
+                    if (!so.getName().endsWith(".so")) continue;
+                    String relPath = so.getAbsolutePath().substring(libsBase.length() + 1);
+                    // 替换反斜杠防 Windows 路径问题
+                    relPath = relPath.replace("\\", "/");
+                    String entry = "lib/" + relPath;
+                    toAdd.put(entry, so);
+                    count++;
                 }
+                log.append("[native-assets] 收集了 " + count + " 个 jniLibs 文件\n");
+            } else {
+                log.append("[native-assets] 警告：未找到 jniLibs 目录！\n");
             }
 
             // 2. assets/ → assets/
