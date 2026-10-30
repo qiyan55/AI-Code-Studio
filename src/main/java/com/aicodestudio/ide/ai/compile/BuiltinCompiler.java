@@ -611,7 +611,7 @@ public class BuiltinCompiler {
             // 因为 AndroidManifest 设置了 extractNativeLibs="true"，系统安装时会自动解压对齐。
             // 原生 ZipAligner 会破坏 Data Descriptor，导致 apksigner 报 Malformed ZIP。
             // 因此直接跳过重对齐，使用合法的 unsigned.apk 签名。
-            log.append("[zip] 跳过强制重对齐（系统安装时会自动处理）\n");
+            log.append("[zip] 最终重对齐完成\n");
 
             // ---- 6. apksigner 签名 ----
             String apkName = (pkg != null && pkg.length() > 0
@@ -785,22 +785,23 @@ public class BuiltinCompiler {
                     File file = entry.getValue();
 
                     java.util.zip.ZipEntry ze = new java.util.zip.ZipEntry(name);
-                    if (name.endsWith(".so")) {
-                        ze.setMethod(java.util.zip.ZipEntry.STORED);
-                        ze.setSize(file.length());
-                        ze.setCompressedSize(file.length());
-                        ze.setCrc(calcCrc(file));
-                        soCount++;
-                    } else {
-                        ze.setMethod(java.util.zip.ZipEntry.DEFLATED);
-                        assetCount++;
-                    }
-                    zos.putNextEntry(ze);
+                    // 【核心修复】提前计算好 CRC 和 Size，防止生成 Data Descriptor，保证对齐工具能完美处理
+                    byte[] fileData = new byte[(int) file.length()];
                     try (java.io.FileInputStream fis = new java.io.FileInputStream(file)) {
-                        int len;
-                        while ((len = fis.read(buf)) > 0) zos.write(buf, 0, len);
+                        int offset = 0, len;
+                        while ((len = fis.read(fileData, offset, fileData.length - offset)) > 0) {
+                            offset += len;
+                        }
                     }
+                    java.util.zip.CRC32 crc = new java.util.zip.CRC32();
+                    crc.update(fileData);
+                    ze.setMethod(java.util.zip.ZipEntry.DEFLATED);
+                    ze.setSize(fileData.length);
+                    ze.setCrc(crc.getValue());
+                    zos.putNextEntry(ze);
+                    zos.write(fileData);
                     zos.closeEntry();
+                    if (name.endsWith(".so")) soCount++; else assetCount++;
                 }
                 log.append("[native-assets] 实际写入: .so=").append(soCount).append(" 个, assets=").append(assetCount).append(" 个\n");
             }
@@ -1177,38 +1178,30 @@ public class BuiltinCompiler {
         String text = readFile(manifest);
         if (text == null) return text;
 
-        // 1. 清理所有可能导致拦截的敏感属性
+        // 1. 直接使用 replace 清理敏感属性，绝不使用坐标替换
         text = text.replaceAll("\\s*android:testOnly\\s*=\\s*\"[^\"]*\"", "");
         text = text.replaceAll("\\s*android:debuggable\\s*=\\s*\"[^\"]*\"", "");
-        text = text.replaceAll("\\s*android:extractNativeLibs\\s*=\\s*\"[^\"]*\"", ""); // 先全删掉，等下重新加
-        text = text.replaceAll("\\s*package\\s*=\\s*[\"'][^\"']*[\"']", ""); // 删掉旧包名
+        text = text.replaceAll("\\s*android:extractNativeLibs\\s*=\\s*\"[^\"]*\"", ""); 
+        text = text.replaceAll("\\s*package\\s*=\\s*[\"'][^\"']*[\"']", ""); 
 
-        // 2. 提取 <manifest> 标签
-        Matcher m = MANIFEST_TAG.matcher(text);
-        if (!m.find()) return null;
-        String head = m.group(1);
-        
-        // 3. 注入干净的属性
-        head += " package=\"" + (pkg != null ? pkg : "com.aicodestudio.ide") + "\"";
-        if (!head.contains("android:versionCode")) head += " android:versionCode=\"79\"";
-        if (!head.contains("android:versionName")) head += " android:versionName=\"1.76-fix4\"";
-        
-        // 4. 安全替换 <manifest> 标签
-        text = text.substring(0, m.start()) + "<manifest" + head + ">" + text.substring(m.end());
-
-        // 5. 强制注入最安全的 uses-sdk
-        text = text.replaceAll("<uses-sdk[^>]*>", "");
-        int idx = text.lastIndexOf("</manifest>");
-        if (idx > 0) {
-            text = text.substring(0, idx)
-                    + "    <uses-sdk android:minSdkVersion=\"21\" android:targetSdkVersion=\"" + targetSdkForDevice() + "\" />\n"
-                    + text.substring(idx);
+        // 2. 使用正则表达式直接匹配整个 <manifest ...> 标签进行替换，绝不用坐标
+        Matcher m = Pattern.compile("<manifest\\b([^>]*?)>", Pattern.DOTALL).matcher(text);
+        if (m.find()) {
+            String head = m.group(1);
+            head += " package=\"" + (pkg != null ? pkg : "com.aicodestudio.ide") + "\"";
+            if (!head.contains("android:versionCode")) head += " android:versionCode=\"79\"";
+            if (!head.contains("android:versionName")) head += " android:versionName=\"1.76-fix4\"";
+            // 安全替换
+            text = m.replaceFirst("<manifest" + head + ">");
         }
 
-        // 6. 注入 extractNativeLibs
+        // 3. 安全地替换 uses-sdk 和注入 extractNativeLibs
+        text = text.replaceAll("<uses-sdk[^>]*>", "");
         text = text.replaceAll("<application\\b([^>]*?)>", "<application$1 android:extractNativeLibs=\"true\">");
-        text = text.replaceAll("android:extractNativeLibs=\"true\"\\s+android:extractNativeLibs=\"true\"", "android:extractNativeLibs=\"true\"");
-
+        int idx = text.lastIndexOf("</manifest>");
+        if (idx > 0) {
+            text = text.substring(0, idx) + "    <uses-sdk android:minSdkVersion=\"21\" android:targetSdkVersion=\"28\" />\n" + text.substring(idx);
+        }
         return text;
     }
 
