@@ -10,6 +10,8 @@ import android.text.style.BackgroundColorSpan;
 import android.text.style.UnderlineSpan;
 import android.util.AttributeSet;
 import android.view.Gravity;
+import android.view.View;
+import android.view.MotionEvent;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -132,7 +134,7 @@ public class CodeEditorView extends LinearLayout {
                 return true;
             }
         });
-        codeWebView.setOnTouchListener(new OnTouchListener() {
+        codeWebView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 scaleDetector.onTouchEvent(event);
