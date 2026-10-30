@@ -117,9 +117,47 @@ public class VoiceEngine {
         return status == STATUS_READY;
     }
 
-    /** 标点模型：暂时不加载 */
-    public OfflinePunctuation ensurePunctuation() {
-        return null;
+    /** 标点模型：懒加载并初始化 */
+    public synchronized OfflinePunctuation ensurePunctuation() {
+        if (punctuation != null) return punctuation;
+        try {
+            File dir = new File(appContext.getFilesDir(), "punct");
+            if (!dir.exists()) dir.mkdirs();
+            File modelFile = new File(dir, "model.int8.onnx");
+            
+            // 从 assets 提取模型到私有目录
+            if (!modelFile.exists() || modelFile.length() == 0) {
+                java.io.InputStream is = appContext.getAssets().open("punct/model.int8.onnx");
+                java.io.FileOutputStream fos = new java.io.FileOutputStream(modelFile);
+                byte[] buf = new byte[16384];
+                int n;
+                while ((n = is.read(buf)) > 0) fos.write(buf, 0, n);
+                fos.close();
+                is.close();
+                log("punct model extracted");
+            }
+            
+            // 初始化标点模型配置
+            com.k2fsa.sherpa.onnx.OfflinePunctuationModelConfig modelConfig =
+                    com.k2fsa.sherpa.onnx.OfflinePunctuationModelConfig.builder()
+                            .setCtTransformer(modelFile.getAbsolutePath())
+                            .setNumThreads(1)
+                            .setDebug(false)
+                            .setProvider("cpu")
+                            .build();
+            
+            com.k2fsa.sherpa.onnx.OfflinePunctuationConfig config =
+                    com.k2fsa.sherpa.onnx.OfflinePunctuationConfig.builder()
+                            .setModel(modelConfig)
+                            .build();
+            
+            punctuation = new OfflinePunctuation(config);
+            log("punctuation engine ready");
+            return punctuation;
+        } catch (Throwable t) {
+            log("load punctuation failed: " + t);
+            return null;
+        }
     }
 
     /** 旧 getter 保留（兼容） */
