@@ -581,19 +581,27 @@ public class BuiltinCompiler {
             File allJar = new File(work, "all.jar");
             jarClasses(classesDir, allJar);
             String d8out = runD8(allJar, androidxJarFile, dexDir);
-            File dexFile = new File(dexDir, "classes.dex");
             if (d8out != null && d8out.length() > 0) log.append("[d8]\n").append(d8out.trim()).append('\n');
-            if (!dexFile.exists() || dexFile.length() == 0) {
-                r.error = "d8 转 dex 失败:\n" + (d8out == null ? "" : d8out);
+
+            File[] dexFiles = dexDir.listFiles((dir, name) -> name.matches("classes\\d*\\.dex"));
+            if (dexFiles == null || dexFiles.length == 0) {
+                r.error = "d8 未生成任何 dex";
                 r.log = log.toString();
                 return r;
             }
-            log.append("[d8] classes.dex " + dexFile.length() + " bytes\n");
+            java.util.Arrays.sort(dexFiles, (a, b) -> {
+                if (a.getName().equals("classes.dex")) return -1;
+                if (b.getName().equals("classes.dex")) return 1;
+                return a.getName().compareTo(b.getName());
+            });
+            for (File df : dexFiles) {
+                log.append("[d8] " + df.getName() + " " + df.length() + " bytes\n");
+            }
 
-            // ---- 5. 合并 base.apk + classes.dex（流式，对齐在最后统一做）----
+            // ---- 5. 合并 base.apk + 所有 classes*.dex ----
             File unsigned = new File(work, "unsigned.apk");
-            mergeZip(baseApk, dexFile, unsigned, "classes.dex");
-            log.append("[zip] 合并 classes.dex\n");
+            mergeZipMultiDex(baseApk, dexFiles, unsigned);
+            log.append("[zip] 合并了 " + dexFiles.length + " 个 dex 文件\n");
 
             // ---- 5.5 打包项目自带 jniLibs/*.so 和 assets/（自举编译支持）----
             File unsignedWithNative = new File(work, "unsigned_native.apk");
@@ -645,6 +653,40 @@ public class BuiltinCompiler {
      * @param log       日志追加
      * @return 打包的文件数量（0 表示项目无 jniLibs/assets）
      */
+
+    private static void mergeZipMultiDex(File baseZip, File[] dexFiles, File out) throws Exception {
+        try (java.util.zip.ZipFile zf = new java.util.zip.ZipFile(baseZip);
+             java.util.zip.ZipOutputStream zos = new java.util.zip.ZipOutputStream(new java.io.FileOutputStream(out))) {
+            byte[] buf = new byte[8192];
+            java.util.Enumeration<? extends java.util.zip.ZipEntry> en = zf.entries();
+            while (en.hasMoreElements()) {
+                java.util.zip.ZipEntry e = en.nextElement();
+                java.util.zip.ZipEntry ne = new java.util.zip.ZipEntry(e.getName());
+                ne.setMethod(e.getMethod());
+                ne.setTime(e.getTime());
+                if (e.getMethod() == java.util.zip.ZipEntry.STORED) {
+                    ne.setSize(e.getSize());
+                    ne.setCompressedSize(e.getSize());
+                    ne.setCrc(e.getCrc());
+                }
+                zos.putNextEntry(ne);
+                try (java.io.InputStream is = zf.getInputStream(e)) {
+                    int len;
+                    while ((len = is.read(buf)) > 0) zos.write(buf, 0, len);
+                }
+                zos.closeEntry();
+            }
+            for (File dex : dexFiles) {
+                java.util.zip.ZipEntry ze = new java.util.zip.ZipEntry(dex.getName());
+                zos.putNextEntry(ze);
+                try (java.io.FileInputStream fis = new java.io.FileInputStream(dex)) {
+                    int len;
+                    while ((len = fis.read(buf)) > 0) zos.write(buf, 0, len);
+                }
+                zos.closeEntry();
+            }
+        }
+    }
 
     private int packageNativeLibsAndAssets(File srcApk, File outApk, File projectDir, StringBuilder log) {
         int count = 0;
