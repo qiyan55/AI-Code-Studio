@@ -123,15 +123,32 @@ public class CodeEditorView extends LinearLayout {
         codeWebView.setBackgroundColor(0xFF282C34);
         codeWebView.setVerticalScrollBarEnabled(true);
         codeWebView.setHorizontalScrollBarEnabled(true);
+        final android.os.Handler scaleHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+        final Runnable applyScaleTask = new Runnable() {
+            @Override
+            public void run() {
+                String js = "document.getElementById('code').style.fontSize='" + currentFontSize + "px';" +
+                            "document.getElementById('ln').style.fontSize='" + currentFontSize + "px';";
+                if (codeWebView != null) codeWebView.evaluateJavascript(js, null);
+            }
+        };
+
         scaleDetector = new android.view.ScaleGestureDetector(ctx, new android.view.ScaleGestureDetector.SimpleOnScaleGestureListener() {
             @Override
             public boolean onScale(android.view.ScaleGestureDetector detector) {
+                // 只更新数值，不立刻调 JS
                 currentFontSize *= detector.getScaleFactor();
                 currentFontSize = Math.max(8f, Math.min(currentFontSize, 32f));
-                String js = "document.getElementById('code').style.fontSize='" + currentFontSize + "px';" +
-                            "document.getElementById('ln').style.fontSize='" + currentFontSize + "px';";
-                codeWebView.evaluateJavascript(js, null);
+                // 防抖：30ms 内的连续缩放只执行最后一次
+                scaleHandler.removeCallbacks(applyScaleTask);
+                scaleHandler.postDelayed(applyScaleTask, 30);
                 return true;
+            }
+            @Override
+            public void onScaleEnd(android.view.ScaleGestureDetector detector) {
+                // 松手立刻应用一次
+                scaleHandler.removeCallbacks(applyScaleTask);
+                applyScaleTask.run();
             }
         });
         codeWebView.setOnTouchListener(new View.OnTouchListener() {

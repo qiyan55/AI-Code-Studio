@@ -5143,45 +5143,44 @@ public class ChatPanel extends LinearLayout {
     private void startVoiceListening() {
         try {
             if (voiceListening) return;
-            VoiceLog.input("startVoiceListening begin");
+            VoiceLog.input("1. startVoiceListening enter");
             VoiceEngine engine = VoiceEngine.get();
             if (!engine.isReady()) {
                 int st = engine.getStatus();
+                VoiceLog.input("2. engine not ready, status=" + st);
                 if (st == VoiceEngine.STATUS_LOADING) {
                     toast("语音引擎加载中，请等几秒再试");
                 } else {
-                    toast("语音引擎加载失败，请重启App或查看日志");
+                    toast("语音引擎加载失败，请在终端查看语音日志");
                 }
                 return;
             }
             voiceListening = true;
+            VoiceLog.input("3. engine ready, hiding IME");
             hideIme();
             if (etInput != null) {
                 etInput.setFocusable(false);
                 etInput.setCursorVisible(false);
             }
+            VoiceLog.input("4. showing overlay");
             showVoiceOverlay();
-            VoiceLog.input("overlay shown, about to start voiceInput");
             if (voiceInput == null) voiceInput = new VoiceInputManager();
-            try {
-                voiceInput.start(getContext(), new VoiceInputManager.Listener() {
-                    @Override public void onPartial(String text) {
-                        if (overlayText != null && text != null && text.length() > 0) {
-                            overlayText.setText(text);
-                        }
+            VoiceLog.input("5. calling voiceInput.start()");
+            voiceInput.start(getContext(), new VoiceInputManager.Listener() {
+                @Override public void onPartial(String text) {
+                    if (overlayText != null && text != null && text.length() > 0) {
+                        overlayText.setText(text);
                     }
-                    @Override public void onFinal(String text) {
-                        handleVoiceFinal(text);
-                    }
-                    @Override public void onError(String msg) {
-                        handleVoiceError(msg);
-                    }
-                });
-            } catch (Throwable t) {
-                handleVoiceError(t.getMessage());
-            }
+                }
+                @Override public void onFinal(String text) {
+                    handleVoiceFinal(text);
+                }
+                @Override public void onError(String msg) {
+                    handleVoiceError(msg);
+                }
+            });
         } catch (Throwable t) {
-            VoiceLog.input("startVoiceListening EXCEPTION: " + android.util.Log.getStackTraceString(t));
+            VoiceLog.input("EXCEPTION: " + android.util.Log.getStackTraceString(t));
             try { hideVoiceOverlay(); } catch (Throwable ignored) {}
             try { restoreInputUi(); } catch (Throwable ignored) {}
             toast("语音启动异常: " + t.getMessage());
