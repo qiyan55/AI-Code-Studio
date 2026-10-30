@@ -38,6 +38,7 @@ public class EditorActivity extends BaseWorkspaceActivity {
     private FileTreeView fileTreeView;
     private CodeEditorView editorView;
     private TextView tabBar;
+    private FrameLayout dividerHandle;
 
     private boolean treeVisible = true;
     private static final int TREE_WIDTH_DP = 150;
@@ -137,7 +138,7 @@ public class EditorActivity extends BaseWorkspaceActivity {
 
         // 分隔线 + 拖动柄：按住左右拖动可调整侧边栏宽度
         // 柄加宽到 26dp，中央显示左右箭头（◄►），点击/按住整条即可拖动，灵活不误触
-        FrameLayout dividerHandle = new FrameLayout(this);
+        dividerHandle = new FrameLayout(this);
         dividerHandle.setLayoutParams(new LinearLayout.LayoutParams(
                 dp(26), LinearLayout.LayoutParams.MATCH_PARENT));
         dividerHandle.setBackgroundColor(0x11000000);
@@ -482,6 +483,9 @@ public class EditorActivity extends BaseWorkspaceActivity {
     private void toggleTree() {
         treeVisible = !treeVisible;
         fileTreeView.setVisibility(treeVisible ? View.VISIBLE : View.GONE);
+        if (dividerHandle != null) {
+            dividerHandle.setVisibility(treeVisible ? View.VISIBLE : View.GONE);
+        }
     }
 
     private void showNewFileDialog() {

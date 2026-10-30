@@ -215,8 +215,8 @@ public class CodeEditorView extends LinearLayout {
                 "  html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #282c34; color: #abb2bf; }\n" +
                 "  body { display: flex; }\n" +
                 "  /* 行号列独立固定（不参与横向滚动，物理上不会动）；代码区独立滚动，纵向用 scrollTop 同步行号 */\n" +
-                "  #lnWrap { flex: none; width: 56px; height: 100%; overflow: hidden; background: #21252b; }\n" +
-                "  #ln { margin: 0; padding: 10px 8px 10px 10px; text-align: right; color: #7f848e; font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.5; user-select: none; white-space: pre; box-sizing: border-box; }\n" +
+                "  #lnWrap { flex: none; width: 38px; height: 100%; overflow: hidden; background: #21252b; }\n" +
+                "  #ln { margin: 0; padding: 10px 4px 10px 4px; text-align: right; color: #7f848e; font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.5; user-select: none; white-space: pre; box-sizing: border-box; }\n" +
                 "  #codeScroll { flex: 1; min-width: 0; height: 100%; overflow: auto; background: #282c34; }\n" +
                 "  #codeHolder { min-height: 100%; padding: 10px 16px 10px 10px; box-sizing: border-box; }\n" +
                 "  #code { display: block; outline: none; font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.5; color: #abb2bf; background: #282c34; white-space: pre; word-wrap: normal; min-height: 100%; caret-color: #61afef; }\n" +
