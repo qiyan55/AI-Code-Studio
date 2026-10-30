@@ -87,11 +87,8 @@ public class BuiltinCompiler {
      * 上限 36：设备端工具链 android.jar 为 API34，但 aapt2 34 实测允许声明
      * targetSdk 35/36（产物不含更高版本特有资源，仅声明不影响运行）。
      */
-    private static String "33" {
-        int device = Build.VERSION.SDK_INT;
-        int target = Math.min(device, 36);
-        if (target < 26) target = 26; // 不低于 minSdk
-        return String.valueOf(target);
+    private static String targetSdkForDevice() {
+        return "33";
     }
 
     // ECJ 错误块：----------\n 1. ERROR in /path/File.java (at line 12)\n\t代码行\n\t     ^\n消息\n----------
