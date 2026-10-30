@@ -672,20 +672,24 @@ public class BuiltinCompiler {
     private static void mergeZipMultiDex(File baseZip, File[] dexFiles, File out) throws Exception {
         try (java.util.zip.ZipFile zf = new java.util.zip.ZipFile(baseZip);
              java.util.zip.ZipOutputStream zos = new java.util.zip.ZipOutputStream(new java.io.FileOutputStream(out))) {
-            byte[] buf = new byte[8192];
+            byte[] buf = new byte[65536];
             java.util.Enumeration<? extends java.util.zip.ZipEntry> en = zf.entries();
             while (en.hasMoreElements()) {
                 java.util.zip.ZipEntry e = en.nextElement();
-                // 【关键修复】过滤原 APK 自带的旧签名文件，防止和新签名冲突
                 if (e.getName().startsWith("META-INF/")) continue;
+                
                 java.util.zip.ZipEntry ne = new java.util.zip.ZipEntry(e.getName());
-                ne.setMethod(e.getMethod());
-                ne.setTime(e.getTime());
-                if (e.getMethod() == java.util.zip.ZipEntry.STORED) {
+                // 核心修复：resources.arsc 必须 STORED 且设置正确的 CRC
+                if (e.getName().equals("resources.arsc")) {
+                    ne.setMethod(java.util.zip.ZipEntry.STORED);
                     ne.setSize(e.getSize());
                     ne.setCompressedSize(e.getSize());
                     ne.setCrc(e.getCrc());
+                } else {
+                    ne.setMethod(java.util.zip.ZipEntry.DEFLATED);
                 }
+                ne.setTime(e.getTime());
+                
                 zos.putNextEntry(ne);
                 try (java.io.InputStream is = zf.getInputStream(e)) {
                     int len;
@@ -695,7 +699,7 @@ public class BuiltinCompiler {
             }
             for (File dex : dexFiles) {
                 java.util.zip.ZipEntry ze = new java.util.zip.ZipEntry(dex.getName());
-                ze.setMethod(java.util.zip.ZipEntry.STORED); // 强制不压缩
+                ze.setMethod(java.util.zip.ZipEntry.STORED);
                 ze.setSize(dex.length());
                 ze.setCompressedSize(dex.length());
                 ze.setCrc(calcCrc(dex));
