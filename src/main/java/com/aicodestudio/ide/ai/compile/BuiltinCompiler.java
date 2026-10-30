@@ -79,7 +79,7 @@ public class BuiltinCompiler {
     /** <manifest 开始标签（<manifest 与 > 之间为属性区） */
     private static final Pattern MANIFEST_TAG =
             Pattern.compile("<manifest\\b([^>]*?)>", Pattern.DOTALL);
-    private static final String KS_ALIAS = "androiddebugkey";
+    private static final String KS_ALIAS = "aicode";
     private static final String KS_PASS = "android";
     /**
      * 产物 APK 的 targetSdk：跟随设备系统版本（避免系统提示「兼容性问题」，
@@ -88,7 +88,7 @@ public class BuiltinCompiler {
      * targetSdk 35/36（产物不含更高版本特有资源，仅声明不影响运行）。
      */
     private static String targetSdkForDevice() {
-        return "33";
+        return "28";
     }
 
     // ECJ 错误块：----------\n 1. ERROR in /path/File.java (at line 12)\n\t代码行\n\t     ^\n消息\n----------
@@ -608,10 +608,10 @@ public class BuiltinCompiler {
                 log.append("[zip] 已打包项目 native libs + assets，共 " + nativeCount + " 个文件\n");
             }
             // ---- 5.6 最终整体重对齐 ----
-            // 因为 AndroidManifest 设置了 extractNativeLibs="true"，系统安装时会自动解压对齐。
-            // 原生 ZipAligner 会破坏 Data Descriptor，导致 apksigner 报 Malformed ZIP。
-            // 因此直接跳过重对齐，使用合法的 unsigned.apk 签名。
-            log.append("[zip] 已采用云端标准打包逻辑，跳过本地对齐\n");
+            File alignedFinal = new File(work, "aligned_final.apk");
+            ZipAligner.realign(unsigned, alignedFinal);
+            unsigned = alignedFinal;
+            log.append("[zip] 最终重对齐完成\n");
 
             // ---- 6. apksigner 签名 ----
             String apkName = (pkg != null && pkg.length() > 0
@@ -784,20 +784,21 @@ public class BuiltinCompiler {
 
                     java.util.zip.ZipEntry ze = new java.util.zip.ZipEntry(name);
                     // 【核心修复】提前计算好 CRC 和 Size，防止生成 Data Descriptor，保证对齐工具能完美处理
-                    byte[] fileData = new byte[(int) file.length()];
-                    try (java.io.FileInputStream fis = new java.io.FileInputStream(file)) {
-                        int offset = 0, len;
-                        while ((len = fis.read(fileData, offset, fileData.length - offset)) > 0) {
-                            offset += len;
-                        }
-                    }
                     java.util.zip.CRC32 crc = new java.util.zip.CRC32();
-                    crc.update(fileData);
                     ze.setMethod(java.util.zip.ZipEntry.DEFLATED);
-                    ze.setSize(fileData.length);
+                    ze.setSize(file.length());
+                    try (java.io.FileInputStream fis = new java.io.FileInputStream(file)) {
+                        byte[] buf = new byte[65536];
+                        int len;
+                        while ((len = fis.read(buf)) > 0) crc.update(buf, 0, len);
+                    }
                     ze.setCrc(crc.getValue());
                     zos.putNextEntry(ze);
-                    zos.write(fileData);
+                    try (java.io.FileInputStream fis = new java.io.FileInputStream(file)) {
+                        byte[] buf = new byte[65536];
+                        int len;
+                        while ((len = fis.read(buf)) > 0) zos.write(buf, 0, len);
+                    }
                     zos.closeEntry();
                     if (name.endsWith(".so")) soCount++; else assetCount++;
                 }
@@ -1005,21 +1006,6 @@ public class BuiltinCompiler {
             signerBuilder.getClass().getMethod("setV1SigningEnabled", boolean.class).invoke(signerBuilder, true);
             signerBuilder.getClass().getMethod("setV2SigningEnabled", boolean.class).invoke(signerBuilder, true);
             signerBuilder.getClass().getMethod("setV3SigningEnabled", boolean.class).invoke(signerBuilder, true);
-            signerBuilder.getClass().getMethod("setV1SigningEnabled", boolean.class).invoke(signerBuilder, true);
-            signerBuilder.getClass().getMethod("setV2SigningEnabled", boolean.class).invoke(signerBuilder, true);
-            signerBuilder.getClass().getMethod("setV3SigningEnabled", boolean.class).invoke(signerBuilder, true);
-            // 【终极修复】强制开启 V1/V2/V3 签名，迎合 vivo 的安全检测
-            signerBuilder.getClass().getMethod("setMinSdkVersion", int.class).invoke(signerBuilder, 21);
-            signerBuilder.getClass().getMethod("setV1SigningEnabled", boolean.class).invoke(signerBuilder, true);
-            signerBuilder.getClass().getMethod("setV2SigningEnabled", boolean.class).invoke(signerBuilder, true);
-            signerBuilder.getClass().getMethod("setV3SigningEnabled", boolean.class).invoke(signerBuilder, true);
-            signerBuilder.getClass().getMethod("setV1SigningEnabled", boolean.class).invoke(signerBuilder, true);
-            signerBuilder.getClass().getMethod("setV2SigningEnabled", boolean.class).invoke(signerBuilder, true);
-            signerBuilder.getClass().getMethod("setV3SigningEnabled", boolean.class).invoke(signerBuilder, true);
-            signerBuilder.getClass().getMethod("setV1SigningEnabled", boolean.class).invoke(signerBuilder, true);
-            signerBuilder.getClass().getMethod("setV2SigningEnabled", boolean.class).invoke(signerBuilder, true);
-            signerBuilder.getClass().getMethod("setV3SigningEnabled", boolean.class).invoke(signerBuilder, true);
-            signerBuilder.getClass().getMethod("setMinSdkVersion", int.class).invoke(signerBuilder, 21);
             Object signer = signerBuilder.getClass().getMethod("build").invoke(signerBuilder);
             signer.getClass().getMethod("sign").invoke(signer);
         } catch (Throwable t) {
