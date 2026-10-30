@@ -51,8 +51,11 @@ def main():
                 if not f.endswith(".so"):
                     continue
                 full = os.path.join(root, f)
+                # 修复：强制使用 STORED 防止高版本 Android 无法加载 .so
                 z_out.write(full, "lib/%s/%s" % (entry_abi, f), zipfile.ZIP_STORED)
                 n_so += 1
+        if n_so == 0:
+            print("警告: 未找到任何 .so 文件！语音或本地模型可能不可用")
 
     # 4. 关键资产 (assets 目录，包含 compile/*.dex)
     n_assets = 0

@@ -187,9 +187,14 @@ public class VoiceEngine {
     private void loadNative() {
         if (libLoaded) return;
         log("loadLibrary sherpa-onnx-jni ...");
-        System.loadLibrary("sherpa-onnx-jni");
-        libLoaded = true;
-        log("loadLibrary OK");
+        try {
+            System.loadLibrary("sherpa-onnx-jni");
+            libLoaded = true;
+            log("loadLibrary OK");
+        } catch (Throwable t) {
+            log("loadLibrary 失败: " + t.getMessage());
+            throw new RuntimeException("无法加载 sherpa-onnx-jni，请检查打包是否包含 .so", t);
+        }
     }
 
     /**
