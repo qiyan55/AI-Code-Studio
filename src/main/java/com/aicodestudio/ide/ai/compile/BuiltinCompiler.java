@@ -87,7 +87,7 @@ public class BuiltinCompiler {
      * 上限 36：设备端工具链 android.jar 为 API34，但 aapt2 34 实测允许声明
      * targetSdk 35/36（产物不含更高版本特有资源，仅声明不影响运行）。
      */
-    private static String targetSdkForDevice() {
+    private static String "33" {
         int device = Build.VERSION.SDK_INT;
         int target = Math.min(device, 36);
         if (target < 26) target = 26; // 不低于 minSdk
@@ -355,7 +355,7 @@ public class BuiltinCompiler {
                         + "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\""
                         + " package=\"" + mp + "\">\n"
                         + "    <uses-sdk android:minSdkVersion=\"26\" android:targetSdkVersion=\""
-                        + targetSdkForDevice() + "\" />\n"
+                        + "33" + "\" />\n"
                         + "    <application android:label=\"App\" />\n"
                         + "</manifest>\n");
             } else if (!manifestHasPackage(manifest)) {
@@ -373,7 +373,7 @@ public class BuiltinCompiler {
                 if (injected == null) {
                     injected = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                             + "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\" package=\"" + pkg + "\">\n"
-                            + "    <uses-sdk android:minSdkVersion=\"26\" android:targetSdkVersion=\"" + targetSdkForDevice() + "\" />\n"
+                            + "    <uses-sdk android:minSdkVersion=\"26\" android:targetSdkVersion=\"" + "33" + "\" />\n"
                             + "    <application android:label=\"App\" />\n"
                             + "</manifest>\n";
                 }
@@ -971,7 +971,7 @@ public class BuiltinCompiler {
             signerBuilder.getClass().getMethod("setOutputApk", File.class).invoke(signerBuilder, output);
             signerBuilder.getClass().getMethod("setV1SigningEnabled", boolean.class).invoke(signerBuilder, true);
             signerBuilder.getClass().getMethod("setV2SigningEnabled", boolean.class).invoke(signerBuilder, true);
-            signerBuilder.getClass().getMethod("setV3SigningEnabled", boolean.class).invoke(signerBuilder, true);
+            signerBuilder.getClass().getMethod("setV3SigningEnabled", boolean.class).invoke(signerBuilder, false);
             Object signer = signerBuilder.getClass().getMethod("build").invoke(signerBuilder);
             signer.getClass().getMethod("sign").invoke(signer);
         } catch (Throwable t) {
@@ -1153,9 +1153,9 @@ public class BuiltinCompiler {
             if (idx > 0) {
                 text = text.substring(0, idx)
                         + "    <uses-sdk android:minSdkVersion=\"26\" android:targetSdkVersion=\""
-                        + targetSdkForDevice() + "\" />\n"
+                        + "33" + "\" />\n"
                         + text.substring(idx);
-                Log.i(TAG, "injected uses-sdk minSdk=26 targetSdk=" + targetSdkForDevice());
+                Log.i(TAG, "injected uses-sdk minSdk=26 targetSdk=" + "33");
             }
         } else {
             // 已有 <uses-sdk>：若 targetSdk 低于 33（Android 13），自动升级到 34。
