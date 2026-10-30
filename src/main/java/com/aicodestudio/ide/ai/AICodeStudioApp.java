@@ -81,6 +81,35 @@ public class AICodeStudioApp extends Application {
         }
     }
 
+
+    /** 后台任务完成时发送系统通知 */
+    public static void showTaskNotification(String title, String message) {
+        try {
+            android.app.NotificationManager nm = (android.app.NotificationManager) sApp.getSystemService(android.content.Context.NOTIFICATION_SERVICE);
+            String channelId = "task_done_channel";
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                android.app.NotificationChannel ch = new android.app.NotificationChannel(channelId, "后台任务完成", android.app.NotificationManager.IMPORTANCE_DEFAULT);
+                if (nm != null) nm.createNotificationChannel(ch);
+            }
+            android.content.Intent intent = new android.content.Intent(sApp, WelcomeActivity.class);
+            intent.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK | android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            android.app.PendingIntent pi = android.app.PendingIntent.getActivity(sApp, 0, intent, android.app.PendingIntent.FLAG_UPDATE_CURRENT | android.app.PendingIntent.FLAG_IMMUTABLE);
+            
+            android.app.Notification.Builder builder;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                builder = new android.app.Notification.Builder(sApp, channelId);
+            } else {
+                builder = new android.app.Notification.Builder(sApp);
+            }
+            builder.setSmallIcon(android.R.drawable.stat_notify_sync)
+                   .setContentTitle(title)
+                   .setContentText(message)
+                   .setContentIntent(pi)
+                   .setAutoCancel(true);
+            if (nm != null) nm.notify((int) System.currentTimeMillis(), builder.build());
+        } catch (Throwable ignored) {}
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();

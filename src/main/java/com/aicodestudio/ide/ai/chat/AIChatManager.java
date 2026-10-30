@@ -1156,6 +1156,10 @@ public class AIChatManager {
             }
 
             try { responseListener.onResponseComplete(rawFullAll.toString()); } catch (Throwable ignored) {}
+            // 后台完成通知
+            if (appCtx != null && stopRequested == false) {
+                com.aicodestudio.ide.ai.AICodeStudioApp.showTaskNotification("AI 回复完成", "点击查看生成内容");
+            }
             // v1.151：不再每轮保存 KV——统一在"离开对话页/切对话/切模式"时保存，
             // 避免多轮对话后 KV 反复全量写盘；窗口大小由保存前 trimKvToWindow 控制
             Log.i(TAG, "Agent 循环结束，最终回复 " + rawFullAll.length() + " 字符");

@@ -135,6 +135,7 @@ public class ChatActivity extends BaseWorkspaceActivity {
         if (currentSessionId != null) {
             com.aicodestudio.ide.ai.core.AppConfig.getInstance(this).saveActiveState(TAB_CHAT, currentSessionId, "", "");
         }
+        // 移除 stopGeneration()，让后台继续推理
     }
 
     @Override

@@ -173,6 +173,8 @@ public class CompileExecutor {
                         appendLog(LOG_SUCCESS, "────────────────────────────────");
                         if (listener != null) {
                             listener.onCompileSuccess(getFullLog());
+                com.aicodestudio.ide.ai.AICodeStudioApp.showTaskNotification("编译成功", "构建任务完成");
+                com.aicodestudio.ide.ai.AICodeStudioApp.showTaskNotification("编译成功", "APK 已生成，点击查看");
                         }
                     } else {
                         appendLog(LOG_ERROR, "────────────────────────────────");
@@ -180,6 +182,7 @@ public class CompileExecutor {
                         appendLog(LOG_ERROR, "────────────────────────────────");
                         if (listener != null) {
                             listener.onCompileFailed(getFullLog(), exitCode);
+                com.aicodestudio.ide.ai.AICodeStudioApp.showTaskNotification("编译失败", "请点击查看错误日志");
                         }
                         
                         // 文档 4.4.2: 编译失败自动推送日志至AI
@@ -261,8 +264,11 @@ public class CompileExecutor {
         if (listener != null) {
             if (ok) {
                 listener.onCompileSuccess(getFullLog());
+                com.aicodestudio.ide.ai.AICodeStudioApp.showTaskNotification("编译成功", "构建任务完成");
+                com.aicodestudio.ide.ai.AICodeStudioApp.showTaskNotification("编译成功", "APK 已生成，点击查看");
             } else {
                 listener.onCompileFailed(getFullLog(), exitCode);
+                com.aicodestudio.ide.ai.AICodeStudioApp.showTaskNotification("编译失败", "请点击查看错误日志");
                 if (autoSendToAI) {
                     notifyAIService(getFullLog());
                 }
