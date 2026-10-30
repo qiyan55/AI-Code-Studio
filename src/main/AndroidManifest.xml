@@ -17,6 +17,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- v1.48g：targetSdk 34 下前台服务类型声明必需（remote 数据通道） -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
     <!-- Android 11+ 分区存储：读 .gguf 这类非媒体文件需要「所有文件访问权限」。
          没有它也能用——走系统文件选择器（SAF）选文件，功能完整，仅多一次拷贝。 -->
@@ -38,7 +39,7 @@
         <service
             android:name=".ai.StayAliveService"
             android:exported="false"
-            android:foregroundServiceType="shortService"
+            android:foregroundServiceType="dataSync"
             android:stopWithTask="false" />
 
         <!-- RemoteConnector：远程连接器前台服务（云端 TCP 控制手机端） -->

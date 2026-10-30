@@ -120,6 +120,14 @@ public class WelcomeActivity extends Activity {
                         }
                     }
                 });
+
+        // 申请后台保活相关权限（通知 + 电池白名单）
+        if (Build.VERSION.SDK_INT >= 33) {
+            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 1001);
+            }
+        }
+        AICodeStudioApp.requestIgnoreBatteryOptimizations(this);
     }
 
     /** 极简启动界面：只要 Activity 活着就一定看得见 */

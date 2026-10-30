@@ -66,6 +66,21 @@ public class AICodeStudioApp extends Application {
         }
     };
 
+
+    public static void requestIgnoreBatteryOptimizations(android.app.Activity activity) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            android.os.PowerManager pm = (android.os.PowerManager) activity.getSystemService(android.content.Context.POWER_SERVICE);
+            if (pm != null && !pm.isIgnoringBatteryOptimizations(activity.getPackageName())) {
+                try {
+                    android.content.Intent intent = new android.content.Intent();
+                    intent.setAction(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                    intent.setData(android.net.Uri.parse("package:" + activity.getPackageName()));
+                    activity.startActivity(intent);
+                } catch (Throwable ignored) {}
+            }
+        }
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();

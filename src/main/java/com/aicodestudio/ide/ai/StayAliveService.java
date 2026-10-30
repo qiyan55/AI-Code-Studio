@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.app.PendingIntent;
 import android.os.Build;
 import android.os.IBinder;
 
@@ -55,7 +56,7 @@ public class StayAliveService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         startForegroundInner();
-        return START_NOT_STICKY; // 被杀后不自动重建（回前台时 App 会重新拉起）
+        return START_STICKY; // 被杀后不自动重建（回前台时 App 会重新拉起）
     }
 
     private void startForegroundInner() {
@@ -68,12 +69,17 @@ public class StayAliveService extends Service {
                 ch.setShowBadge(false);
                 if (nm != null) nm.createNotificationChannel(ch);
             }
+            Intent intent = new Intent(this, com.aicodestudio.ide.ai.WelcomeActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            PendingIntent pi = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
             Notification n;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 n = new Notification.Builder(this, CHANNEL_ID)
                         .setContentTitle("AI Code Studio")
-                        .setContentText("保持会话中，回到 App 继续")
+                        .setContentText("保持后台运行中，点击返回")
                         .setSmallIcon(android.R.drawable.ic_menu_compass)
+                        .setContentIntent(pi)
                         .setOngoing(true)
                         .setPriority(Notification.PRIORITY_MIN)
                         .build();
