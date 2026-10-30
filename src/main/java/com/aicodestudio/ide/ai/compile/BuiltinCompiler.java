@@ -669,6 +669,8 @@ public class BuiltinCompiler {
             java.util.Enumeration<? extends java.util.zip.ZipEntry> en = zf.entries();
             while (en.hasMoreElements()) {
                 java.util.zip.ZipEntry e = en.nextElement();
+                // 【关键修复】过滤原 APK 自带的旧签名文件，防止和新签名冲突
+                if (e.getName().startsWith("META-INF/")) continue;
                 java.util.zip.ZipEntry ne = new java.util.zip.ZipEntry(e.getName());
                 ne.setMethod(e.getMethod());
                 ne.setTime(e.getTime());
@@ -991,7 +993,9 @@ public class BuiltinCompiler {
             signerBuilder.getClass().getMethod("setOutputApk", File.class).invoke(signerBuilder, output);
             signerBuilder.getClass().getMethod("setV1SigningEnabled", boolean.class).invoke(signerBuilder, true);
             signerBuilder.getClass().getMethod("setV2SigningEnabled", boolean.class).invoke(signerBuilder, true);
-            signerBuilder.getClass().getMethod("setV3SigningEnabled", boolean.class).invoke(signerBuilder, false);
+            signerBuilder.getClass().getMethod("setV1SigningEnabled", boolean.class).invoke(signerBuilder, true);
+            signerBuilder.getClass().getMethod("setV2SigningEnabled", boolean.class).invoke(signerBuilder, true);
+            signerBuilder.getClass().getMethod("setV3SigningEnabled", boolean.class).invoke(signerBuilder, true);
             Object signer = signerBuilder.getClass().getMethod("build").invoke(signerBuilder);
             signer.getClass().getMethod("sign").invoke(signer);
         } catch (Throwable t) {
@@ -1149,6 +1153,10 @@ public class BuiltinCompiler {
         if (text == null) return text;
         Matcher m = MANIFEST_TAG.matcher(text);
         if (!m.find()) return text;
+        // 【关键修复】暴力清理所有可能引发系统拦截的属性
+        text = text.replaceAll("\\s*android:testOnly\\s*=\\s*\"[^\"]*\"", "");
+        text = text.replaceAll("\\s*android:debuggable\\s*=\\s*\"[^\"]*\"", "");
+        
         String head = m.group(1); // <manifest 与 > 之间的属性
         
         // 如果传入了合法的包名，且原本没有包名，才注入
@@ -1202,6 +1210,15 @@ public class BuiltinCompiler {
                     + text.substring(am.end());
             Log.i(TAG, "injected application android:name=CrashCapture");
         }
+        // 强制注入 extractNativeLibs="true"，防止 Android 14 严格校验时报错
+        am = Pattern.compile("<application\\b([^>]*?)>", Pattern.DOTALL).matcher(text);
+        if (am.find() && !am.group(1).contains("extractNativeLibs")) {
+            String ah = am.group(1);
+            text = text.substring(0, am.start())
+                    + "<application" + ah + " android:extractNativeLibs=\"true\">"
+                    + text.substring(am.end());
+        }
+
         // 注入全面屏适配属性（vivo/OriginOS 底部"显示至此区域"黑条）：resizeableActivity + maxAspectRatio
         am = Pattern.compile("<application\\b([^>]*?)>", Pattern.DOTALL).matcher(text);
         if (am.find() && !am.group(1).contains("resizeableActivity")) {
