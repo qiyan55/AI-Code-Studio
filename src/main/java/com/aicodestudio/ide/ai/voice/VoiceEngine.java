@@ -79,7 +79,7 @@ public class VoiceEngine {
 
     /** App 启动时调用：异步预加载，不阻塞主线程 */
     public synchronized void init(Context ctx) {
-        if (initStarted) return;
+        if (initStarted && status != STATUS_ERROR) return;
         initStarted = true;
         appContext = ctx.getApplicationContext();
         new Thread(new Runnable() {
@@ -94,7 +94,7 @@ public class VoiceEngine {
                     status = STATUS_READY;
                     log("VoiceEngine READY");
                 } catch (Throwable t) {
-                    log("VoiceEngine ERROR: " + t);
+                    log("VoiceEngine ERROR: " + android.util.Log.getStackTraceString(t));
                     Log.e(TAG, "语音引擎加载失败", t);
                     status = STATUS_ERROR;
                 }
@@ -284,8 +284,8 @@ public class VoiceEngine {
                 if (checkIs != null) try { checkIs.close(); } catch (Throwable ignored) {}
             }
 
-            // 已存在且大小 > 0 就跳过（首次安装后复制一次即可，后续启动不重复复制）
-            if (outF.exists() && outF.length() > 0) {
+            // 如果文件存在且大于 1MB（防半截文件），才跳过；否则强制重新拷贝
+            if (outF.exists() && outF.length() > 1024 * 1024) {
                 skipped++;
                 log("skip (exists) " + name + " size=" + outF.length());
                 continue;
