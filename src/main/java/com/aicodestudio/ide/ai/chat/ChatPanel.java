@@ -5161,6 +5161,7 @@ public class ChatPanel extends LinearLayout {
                 etInput.setCursorVisible(false);
             }
             showVoiceOverlay();
+            VoiceLog.input("overlay shown, about to start voiceInput");
             if (voiceInput == null) voiceInput = new VoiceInputManager();
             try {
                 voiceInput.start(getContext(), new VoiceInputManager.Listener() {
@@ -5180,9 +5181,10 @@ public class ChatPanel extends LinearLayout {
                 handleVoiceError(t.getMessage());
             }
         } catch (Throwable t) {
+            VoiceLog.input("startVoiceListening EXCEPTION: " + android.util.Log.getStackTraceString(t));
             try { hideVoiceOverlay(); } catch (Throwable ignored) {}
             try { restoreInputUi(); } catch (Throwable ignored) {}
-            toast("语音启动异常，请重试");
+            toast("语音启动异常: " + t.getMessage());
         }
     }
 

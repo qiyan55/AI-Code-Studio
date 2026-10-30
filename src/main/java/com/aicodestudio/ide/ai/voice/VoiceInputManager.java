@@ -41,6 +41,7 @@ public class VoiceInputManager {
 
     /** 开始录音识别（需调用方已获得 RECORD_AUDIO 权限；引擎由 VoiceEngine 常驻预加载） */
     public synchronized void start(Context ctx, final Listener l) {
+        VoiceLog.input("VoiceInputManager.start enter");
         HotwordCorrector.ensureLoaded(ctx); // 应用侧热词词典（懒加载，一次）
         this.listener = l;
         // 上次识别线程仍在收尾（stop 后最多 ~1.7s）：拒绝本次，避免同一 recognizer 双线程并发 → native 崩溃
