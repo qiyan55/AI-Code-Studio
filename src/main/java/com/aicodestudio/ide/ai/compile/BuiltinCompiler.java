@@ -637,6 +637,13 @@ public class BuiltinCompiler {
             }
             log.append("[apksigner] 签名完成 " + signed.length() + " bytes\n");
 
+            log.append("[done] =======================================\n");
+            log.append("[done] APK 构建完成: ").append(signed.getName()).append("\n");
+            log.append("[done] 文件大小: ").append(signed.length() / 1024 / 1024).append(" MB\n");
+            log.append("[done] 签名状态: 强制 V1 + V2 + V3\n");
+            log.append("[done] 目标 SDK : min 21 / target ").append(targetSdkForDevice()).append("\n");
+            log.append("[done] =======================================\n");
+            
             r.success = true;
             r.apkFile = signed;
             r.packageName = pkg;
@@ -1165,91 +1172,39 @@ public class BuiltinCompiler {
     private String injectManifestDefaults(File manifest, String pkg) {
         String text = readFile(manifest);
         if (text == null) return text;
-        Matcher m = MANIFEST_TAG.matcher(text);
-        if (!m.find()) return text;
-        // 【关键修复】暴力清理所有可能引发系统拦截的属性
+
+        // 1. 清理所有可能导致拦截的敏感属性
         text = text.replaceAll("\\s*android:testOnly\\s*=\\s*\"[^\"]*\"", "");
         text = text.replaceAll("\\s*android:debuggable\\s*=\\s*\"[^\"]*\"", "");
+        text = text.replaceAll("\\s*android:extractNativeLibs\\s*=\\s*\"[^\"]*\"", ""); // 先全删掉，等下重新加
+        text = text.replaceAll("\\s*package\\s*=\\s*[\"'][^\"']*[\"']", ""); // 删掉旧包名
+
+        // 2. 提取 <manifest> 标签
+        Matcher m = MANIFEST_TAG.matcher(text);
+        if (!m.find()) return null;
+        String head = m.group(1);
         
-        String head = m.group(1); // <manifest 与 > 之间的属性
+        // 3. 注入干净的属性
+        head += " package=\"" + (pkg != null ? pkg : "com.aicodestudio.ide") + "\"";
+        if (!head.contains("android:versionCode")) head += " android:versionCode=\"79\"";
+        if (!head.contains("android:versionName")) head += " android:versionName=\"1.76-fix4\"";
         
-        // 如果传入了合法的包名，且原本没有包名，才注入
-        if (pkg != null && pkg.length() > 0 && !MANIFEST_PACKAGE.matcher(text).find()) {
-            head = head + " package=\"" + pkg + "\"";
-            Log.i(TAG, "injected package=\"" + pkg + "\"");
-        }
-        // 如果原本已经有包名，就保持原样，绝对不要删掉它
-        if (!MANIFEST_VERSION_CODE.matcher(text).find()) {
-            head = head + " android:versionCode=\"1\"";
-            Log.i(TAG, "injected versionCode=1");
-        }
-        if (!MANIFEST_VERSION_NAME.matcher(text).find()) {
-            head = head + " android:versionName=\"1.0\"";
-            Log.i(TAG, "injected versionName=1.0");
-        }
-        StringBuilder sb = new StringBuilder(text);
-        sb.replace(m.start(), m.end(), "<manifest" + head + ">");
-        text = sb.toString();
-        if (!text.contains("<uses-sdk")) {
-            int idx = text.lastIndexOf("</manifest>");
-            if (idx > 0) {
-                text = text.substring(0, idx)
-                        + "    <uses-sdk android:minSdkVersion=\"21\" android:targetSdkVersion=\""
-                        + "33" + "\" />\n"
-                        + text.substring(idx);
-                Log.i(TAG, "injected uses-sdk minSdk=26 targetSdk=" + "33");
-            }
-        } else {
-            // 已有 <uses-sdk>：若 targetSdk 低于 33（Android 13），自动升级到 34。
-            // 避免 Android 14+ 设备安装时弹「此应用专为旧版 Android 打造」兼容性警告。
-            // 用正则提取已有 targetSdk，仅在过低时替换，不改动用户合理设置。
-            Matcher tm = Pattern.compile(
-                    "android:targetSdkVersion\\s*=\\s*\"(\\d+)\"").matcher(text);
-            if (tm.find()) {
-                int existing = Integer.parseInt(tm.group(1));
-                if (existing < 33) {
-                    text = text.substring(0, tm.start())
-                            + "android:targetSdkVersion=\"34\""
-                            + text.substring(tm.end());
-                    Log.i(TAG, "upgraded targetSdk from " + existing + " to 34 (avoid compatibility warning)");
-                }
-            }
-        }
-        // 注入崩溃采集 Application（仅当 <application> 无 android:name，即用户未自定义 Application）
-        Matcher am = Pattern.compile("<application\\b([^>]*?)>", Pattern.DOTALL).matcher(text);
-        if (am.find() && !am.group(1).contains("android:name")) {
-            String ah = am.group(1);
-            text = text.substring(0, am.start())
-                    + "<application" + ah + " android:name=\"com.aicodestudio.toolchain.CrashCapture\">"
-                    + text.substring(am.end());
-            Log.i(TAG, "injected application android:name=CrashCapture");
-        }
-        // 强制注入 extractNativeLibs="true"，防止 Android 14 严格校验时报错
-        am = Pattern.compile("<application\\b([^>]*?)>", Pattern.DOTALL).matcher(text);
-        if (am.find() && !am.group(1).contains("extractNativeLibs")) {
-            String ah = am.group(1);
-            text = text.substring(0, am.start())
-                    + "<application" + ah + " android:extractNativeLibs=\"true\">"
-                    + text.substring(am.end());
+        // 4. 安全替换 <manifest> 标签
+        text = text.substring(0, m.start()) + "<manifest" + head + ">" + text.substring(m.end());
+
+        // 5. 强制注入最安全的 uses-sdk
+        text = text.replaceAll("<uses-sdk[^>]*>", "");
+        int idx = text.lastIndexOf("</manifest>");
+        if (idx > 0) {
+            text = text.substring(0, idx)
+                    + "    <uses-sdk android:minSdkVersion=\"21\" android:targetSdkVersion=\"" + targetSdkForDevice() + "\" />\n"
+                    + text.substring(idx);
         }
 
-        // 注入全面屏适配属性（vivo/OriginOS 底部"显示至此区域"黑条）：resizeableActivity + maxAspectRatio
-        am = Pattern.compile("<application\\b([^>]*?)>", Pattern.DOTALL).matcher(text);
-        if (am.find() && !am.group(1).contains("resizeableActivity")) {
-            String ah = am.group(1);
-            text = text.substring(0, am.start())
-                    + "<application" + ah + " android:resizeableActivity=\"true\">"
-                    + text.substring(am.end());
-            Log.i(TAG, "injected android:resizeableActivity=true");
-        }
-        am = Pattern.compile("<application\\b([^>]*?)>", Pattern.DOTALL).matcher(text);
-        if (am.find() && !am.group(1).contains("maxAspectRatio")) {
-            String ah = am.group(1);
-            text = text.substring(0, am.start())
-                    + "<application" + ah + " android:maxAspectRatio=\"2.4\">"
-                    + text.substring(am.end());
-            Log.i(TAG, "injected android:maxAspectRatio=2.4");
-        }
+        // 6. 注入 extractNativeLibs
+        text = text.replaceAll("<application\\b([^>]*?)>", "<application$1 android:extractNativeLibs=\"true\">");
+        text = text.replaceAll("android:extractNativeLibs=\"true\"\\s+android:extractNativeLibs=\"true\"", "android:extractNativeLibs=\"true\"");
+
         return text;
     }
 
