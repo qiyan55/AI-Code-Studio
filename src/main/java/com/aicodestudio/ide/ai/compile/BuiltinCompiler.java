@@ -943,7 +943,7 @@ public class BuiltinCompiler {
 
     /** 反射调用 apksig 库签名：unsigned.apk → signed.apk（内置 debug keystore）。
      *  用库 API（ApkSigner.Builder）而非 ApkSignerTool.main，避免 System.exit 杀进程。 */
-    private String runApksigner(File input, File output, File keystoreFile) throws Exception {
+    private String runApksigner(File input, File output, File ksFile) throws Exception {
         File optDir = new File(toolDir, "opt");
         if (!optDir.exists() && !optDir.mkdirs()) optDir = null;
         ClassLoader cl = new dalvik.system.DexClassLoader(
