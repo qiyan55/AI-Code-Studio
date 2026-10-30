@@ -88,7 +88,10 @@ public class BuiltinCompiler {
      * targetSdk 35/36（产物不含更高版本特有资源，仅声明不影响运行）。
      */
     private static String targetSdkForDevice() {
-        return "33";
+        int device = Build.VERSION.SDK_INT;
+        int target = Math.min(device, 34);
+        if (target < 26) target = 26;
+        return String.valueOf(target);
     }
 
     // ECJ 错误块：----------\n 1. ERROR in /path/File.java (at line 12)\n\t代码行\n\t     ^\n消息\n----------
@@ -951,12 +954,12 @@ public class BuiltinCompiler {
             java.security.KeyStore ks = null;
             try {
                 ks = java.security.KeyStore.getInstance("JKS");
-                FileInputStream ksin = new FileInputStream(keystoreFile);
+                FileInputStream ksin = new FileInputStream(ksFile);
                 ks.load(ksin, KS_PASS.toCharArray());
                 ksin.close();
             } catch (Throwable jksFail) {
                 ks = java.security.KeyStore.getInstance("PKCS12");
-                FileInputStream ksin = new FileInputStream(keystoreFile);
+                FileInputStream ksin = new FileInputStream(ksFile);
                 ks.load(ksin, KS_PASS.toCharArray());
                 ksin.close();
             }
