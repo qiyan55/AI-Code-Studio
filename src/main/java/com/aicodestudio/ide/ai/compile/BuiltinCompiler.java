@@ -994,8 +994,18 @@ public class BuiltinCompiler {
             signerBuilder.getClass().getMethod("setMinSdkVersion", int.class).invoke(signerBuilder, 21);
             signerBuilder.getClass().getMethod("setV1SigningEnabled", boolean.class).invoke(signerBuilder, true);
             signerBuilder.getClass().getMethod("setV2SigningEnabled", boolean.class).invoke(signerBuilder, true);
+            signerBuilder.getClass().getMethod("setV3SigningEnabled", boolean.class).invoke(signerBuilder, true);
+            signerBuilder.getClass().getMethod("setV1SigningEnabled", boolean.class).invoke(signerBuilder, true);
+            signerBuilder.getClass().getMethod("setV2SigningEnabled", boolean.class).invoke(signerBuilder, true);
+            signerBuilder.getClass().getMethod("setV3SigningEnabled", boolean.class).invoke(signerBuilder, true);
             // 【终极修复】强制开启 V1/V2/V3 签名，迎合 vivo 的安全检测
             signerBuilder.getClass().getMethod("setMinSdkVersion", int.class).invoke(signerBuilder, 21);
+            signerBuilder.getClass().getMethod("setV1SigningEnabled", boolean.class).invoke(signerBuilder, true);
+            signerBuilder.getClass().getMethod("setV2SigningEnabled", boolean.class).invoke(signerBuilder, true);
+            signerBuilder.getClass().getMethod("setV3SigningEnabled", boolean.class).invoke(signerBuilder, true);
+            signerBuilder.getClass().getMethod("setV1SigningEnabled", boolean.class).invoke(signerBuilder, true);
+            signerBuilder.getClass().getMethod("setV2SigningEnabled", boolean.class).invoke(signerBuilder, true);
+            signerBuilder.getClass().getMethod("setV3SigningEnabled", boolean.class).invoke(signerBuilder, true);
             signerBuilder.getClass().getMethod("setV1SigningEnabled", boolean.class).invoke(signerBuilder, true);
             signerBuilder.getClass().getMethod("setV2SigningEnabled", boolean.class).invoke(signerBuilder, true);
             signerBuilder.getClass().getMethod("setV3SigningEnabled", boolean.class).invoke(signerBuilder, true);
