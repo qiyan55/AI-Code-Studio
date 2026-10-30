@@ -658,11 +658,10 @@ public class BuiltinCompiler {
                 String libsBase = jniLibsDir.getAbsolutePath();
                 for (File so : soFiles) {
                     if (!so.getName().endsWith(".so")) continue;
-                    String relPath = so.getAbsolutePath().substring(libsBase.length() + 1).replace("\", "/");
+                    String relPath = so.getAbsolutePath().substring(libsBase.length() + 1);
                     toAdd.put("lib/" + relPath, so);
                 }
-                log.append("[native-assets] 收集 jniLibs 完毕，找到 .so 数量: ").append(soFiles.size()).append('
-');
+                log.append("[native-assets] 收集 jniLibs 完毕，找到 .so 数量: ").append(soFiles.size()).append("\n");
             }
 
             File assetsDir = findDir(projectDir, "assets");
@@ -671,11 +670,10 @@ public class BuiltinCompiler {
                 collectFilesRecursive(assetsDir, assetFiles);
                 String assetsBase = assetsDir.getAbsolutePath();
                 for (File af : assetFiles) {
-                    String relPath = af.getAbsolutePath().substring(assetsBase.length() + 1).replace("\", "/");
+                    String relPath = af.getAbsolutePath().substring(assetsBase.length() + 1);
                     toAdd.put("assets/" + relPath, af);
                 }
-                log.append("[native-assets] 收集 assets 完毕，找到文件数量: ").append(assetFiles.size()).append('
-');
+                log.append("[native-assets] 收集 assets 完毕，找到文件数量: ").append(assetFiles.size()).append("\n");
             }
 
             count = toAdd.size();
@@ -729,13 +727,11 @@ public class BuiltinCompiler {
                     }
                     zos.closeEntry();
                 }
-                log.append("[native-assets] 实际写入: .so=").append(soCount).append(" 个, assets=").append(assetCount).append(" 个
-");
+                log.append("[native-assets] 实际写入: .so=").append(soCount).append(" 个, assets=").append(assetCount).append(" 个\n");
             }
             return count;
         } catch (Throwable t) {
-            log.append("[native-assets] 打包异常: ").append(describe(t)).append("
-");
+            log.append("[native-assets] 打包异常: ").append(describe(t)).append("\n");
             return 0;
         }
     }
