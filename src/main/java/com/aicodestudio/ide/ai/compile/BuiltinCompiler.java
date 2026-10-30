@@ -788,14 +788,12 @@ public class BuiltinCompiler {
                     ze.setMethod(java.util.zip.ZipEntry.DEFLATED);
                     ze.setSize(file.length());
                     try (java.io.FileInputStream fis = new java.io.FileInputStream(file)) {
-                        byte[] buf = new byte[65536];
                         int len;
                         while ((len = fis.read(buf)) > 0) crc.update(buf, 0, len);
                     }
                     ze.setCrc(crc.getValue());
                     zos.putNextEntry(ze);
                     try (java.io.FileInputStream fis = new java.io.FileInputStream(file)) {
-                        byte[] buf = new byte[65536];
                         int len;
                         while ((len = fis.read(buf)) > 0) zos.write(buf, 0, len);
                     }
