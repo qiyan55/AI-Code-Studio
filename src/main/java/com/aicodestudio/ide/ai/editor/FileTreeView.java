@@ -38,6 +38,7 @@ public class FileTreeView extends ScrollView {
 
     /** 已展开目录的绝对路径集合（render 全量重建时恢复展开状态） */
     private final java.util.Set<String> expandedPaths = new java.util.HashSet<>();
+    private String selectedPath = "";
 
     /** 树节点 */
     public static class TreeNode {
@@ -103,6 +104,14 @@ public class FileTreeView extends ScrollView {
     }
 
     public void refresh() { render(); }
+
+    public void setSelectedFile(String path) {
+        if (path == null) path = "";
+        if (!this.selectedPath.equals(path)) {
+            this.selectedPath = path;
+            render();
+        }
+    }
 
     private void render() {
         container.removeAllViews();
@@ -232,8 +241,17 @@ public class FileTreeView extends ScrollView {
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT));
         name.setText(f.getName());
-        name.setTextColor(isDir
-                ? Theme.TEXT_PRIMARY : Theme.ICON_IDLE);
+        
+        // 如果当前行是被选中的文件，高亮显示
+        boolean isSelected = f.getAbsolutePath().equals(selectedPath);
+        if (isSelected) {
+            row.setBackgroundColor(0x33FFFFFF); // 浅白色半透明背景
+            name.setTextColor(Theme.ACCENT_BLUE); // 蓝色文字
+        } else {
+            row.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+            name.setTextColor(isDir ? Theme.TEXT_PRIMARY : Theme.ICON_IDLE);
+        }
+        
         name.setTextSize(13);
         name.setSingleLine(true);
         row.addView(name);

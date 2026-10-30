@@ -354,6 +354,9 @@ public class EditorActivity extends BaseWorkspaceActivity {
         if (file.length() > 0 && new File(file).exists()) {
             String code = state().getCurrentCode();
             editorView.openFile(file, code);
+            if (fileTreeView != null) {
+                fileTreeView.setSelectedFile(file);
+            }
             String lang = CodeEditorView.detectLanguage(file);
             String n = state().getCurrentFileName();
             tabBar.setText(state().isDirty() ? dirtyLabel(n) : n);
@@ -426,6 +429,9 @@ public class EditorActivity extends BaseWorkspaceActivity {
         String code = state().readFile(file.getAbsolutePath());
         state().setCurrentFile(file.getAbsolutePath(), code);
         editorView.openFile(file.getAbsolutePath(), code);
+        if (fileTreeView != null) {
+            fileTreeView.setSelectedFile(file.getAbsolutePath());
+        }
 
         String lang = CodeEditorView.detectLanguage(file.getName());
         tabBar.setText(file.getName() + "    " + lang.toUpperCase()

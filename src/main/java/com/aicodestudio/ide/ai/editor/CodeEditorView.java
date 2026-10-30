@@ -47,6 +47,8 @@ public class CodeEditorView extends LinearLayout {
     private String pendingCode = null; // 页面未就绪时暂存待显示代码
 
     private List<CodeError> errors = new ArrayList<CodeError>();
+    private float currentFontSize = 12f;
+    private android.view.ScaleGestureDetector scaleDetector;
     private Handler mainHandler;
     private EditorListener listener;
 
@@ -119,6 +121,24 @@ public class CodeEditorView extends LinearLayout {
         codeWebView.setBackgroundColor(0xFF282C34);
         codeWebView.setVerticalScrollBarEnabled(true);
         codeWebView.setHorizontalScrollBarEnabled(true);
+        scaleDetector = new android.view.ScaleGestureDetector(ctx, new android.view.ScaleGestureDetector.SimpleOnScaleGestureListener() {
+            @Override
+            public boolean onScale(android.view.ScaleGestureDetector detector) {
+                currentFontSize *= detector.getScaleFactor();
+                currentFontSize = Math.max(8f, Math.min(currentFontSize, 32f));
+                String js = "document.getElementById('code').style.fontSize='" + currentFontSize + "px';" +
+                            "document.getElementById('ln').style.fontSize='" + currentFontSize + "px';";
+                codeWebView.evaluateJavascript(js, null);
+                return true;
+            }
+        });
+        codeWebView.setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                scaleDetector.onTouchEvent(event);
+                return false;
+            }
+        });
         codeWebView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
