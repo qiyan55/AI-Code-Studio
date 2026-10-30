@@ -385,7 +385,7 @@ public class BuiltinCompiler {
                 // manifest 已有 package：仍需补齐缺失的 versionCode/versionName/uses-sdk。
                 // 否则产物 APK 的 targetSdk 缺失 → 系统按 targetSdk=1 处理，
                 // 任何设备安装时都会提示「兼容性问题」。
-                String injected = injectManifestDefaults(manifest, null);
+                String injected = injectManifestDefaults(manifest, pkg);
                 if (injected != null && !injected.equals(readFile(manifest))) {
                     File tmpManifest = new File(work, "AndroidManifest.xml");
                     writeFile(tmpManifest, injected);
@@ -1134,14 +1134,12 @@ public class BuiltinCompiler {
         if (!m.find()) return text;
         String head = m.group(1); // <manifest 与 > 之间的属性
         
-        // 先暴力移除所有旧的 package 属性，防止重复
-        text = text.replaceAll("\\bpackage\\s*=\\s*[\"'][^\"']*[\"']", "");
-        m = MANIFEST_TAG.matcher(text); // 重新匹配
-        if (!m.find()) return null; // 如果连标签都找不到，直接返回 null 触发兜底
-        head = m.group(1);
-        // 强制加上新包名
-        head = head + " package=\"" + pkg + "\"";
-        Log.i(TAG, "force injected package=\"" + pkg + "\"");
+        // 如果传入了合法的包名，且原本没有包名，才注入
+        if (pkg != null && pkg.length() > 0 && !MANIFEST_PACKAGE.matcher(text).find()) {
+            head = head + " package=\"" + pkg + "\"";
+            Log.i(TAG, "injected package=\"" + pkg + "\"");
+        }
+        // 如果原本已经有包名，就保持原样，绝对不要删掉它
         if (!MANIFEST_VERSION_CODE.matcher(text).find()) {
             head = head + " android:versionCode=\"1\"";
             Log.i(TAG, "injected versionCode=1");
