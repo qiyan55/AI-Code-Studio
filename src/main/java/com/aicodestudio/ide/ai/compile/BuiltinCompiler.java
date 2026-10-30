@@ -425,13 +425,7 @@ public class BuiltinCompiler {
             linkArgs.add(resZip.getAbsolutePath());
             linkArgs.add("--java"); linkArgs.add(genDir.getAbsolutePath());
             
-            // 强制用 aapt2 打包 assets（避免 Java 手动合并导致文件丢失）
-            File assetsDir = findDir(projectDir, "assets");
-            if (assetsDir != null) {
-                linkArgs.add("-A");
-                linkArgs.add(assetsDir.getAbsolutePath());
-                log.append("[aapt2] 已包含 assets 目录: ").append(assetsDir.getAbsolutePath()).append('\n');
-            }
+
             String c2 = runProcess(aapt2File, linkArgs.toArray(new String[0]));
             log.append("[aapt2 link]\n").append(c2 == null ? "" : c2.trim()).append('\n');
             if (!baseApk.exists() || baseApk.length() == 0) {
@@ -651,66 +645,63 @@ public class BuiltinCompiler {
      * @param log       日志追加
      * @return 打包的文件数量（0 表示项目无 jniLibs/assets）
      */
+
     private int packageNativeLibsAndAssets(File srcApk, File outApk, File projectDir, StringBuilder log) {
         int count = 0;
         try {
-            // 收集需要打包的文件：entryName -> file
             java.util.Map<String, File> toAdd = new java.util.LinkedHashMap<>();
 
-            // 1. jniLibs/递归收集所有 .so
+            // 1. 收集 jniLibs 下的 .so
             File jniLibsDir = findDir(projectDir, "jniLibs");
-            if (jniLibsDir != null) {
+            if (jniLibsDir != null && jniLibsDir.isDirectory()) {
                 java.util.List<File> soFiles = new java.util.ArrayList<>();
                 collectFilesRecursive(jniLibsDir, soFiles);
                 String libsBase = jniLibsDir.getAbsolutePath();
                 for (File so : soFiles) {
                     if (!so.getName().endsWith(".so")) continue;
-                    String relPath = so.getAbsolutePath().substring(libsBase.length() + 1);
-                    // 替换反斜杠防 Windows 路径问题
-                    relPath = relPath.replace("\\", "/");
-                    String entry = "lib/" + relPath;
-                    toAdd.put(entry, so);
-                    count++;
+                    String relPath = so.getAbsolutePath().substring(libsBase.length() + 1).replace("\\", "/");
+                    toAdd.put("lib/" + relPath, so);
                 }
-                log.append("[native-assets] 收集了 " + count + " 个 jniLibs 文件\n");
+                log.append("[native-assets] 收集 jniLibs 完毕，找到 .so 数量: ").append(soFiles.size()).append('\n');
             } else {
-                log.append("[native-assets] 警告：未找到 jniLibs 目录！\n");
+                log.append("[native-assets] 未找到 jniLibs 目录\n");
             }
 
-            // 2. assets/ → assets/
+            // 2. 收集 assets 下的所有文件
             File assetsDir = findDir(projectDir, "assets");
-            if (assetsDir != null) {
+            if (assetsDir != null && assetsDir.isDirectory()) {
                 java.util.List<File> assetFiles = new java.util.ArrayList<>();
                 collectFilesRecursive(assetsDir, assetFiles);
                 String assetsBase = assetsDir.getAbsolutePath();
                 for (File af : assetFiles) {
-                    String relPath = af.getAbsolutePath().substring(assetsBase.length() + 1);
-                    String entry = "assets/" + relPath;
-                    toAdd.put(entry, af);
-                    count++;
+                    String relPath = af.getAbsolutePath().substring(assetsBase.length() + 1).replace("\\", "/");
+                    toAdd.put("assets/" + relPath, af);
                 }
+                log.append("[native-assets] 收集 assets 完毕，找到文件数量: ").append(assetFiles.size()).append('\n');
+            } else {
+                log.append("[native-assets] 未找到 assets 目录\n");
             }
 
+            count = toAdd.size();
             if (count == 0) return 0;
 
-            // 重新打包 APK：复制原条目（保留原压缩方式！resources.arsc 必须 STORED）+ 追加新条目
-            // 关键：不能用 ZipInputStream 读（它自动解压）再用 ZipOutputStream 写（自动重压缩），
-            // 那会把 aapt2 产出的 STORED resources.arsc 压成 DEFLATED → Android 11+ 拒装。
-            // 改用 ZipFile 读，逐条目设置 method/crc/size，让 STORED 条目保持 STORED。
+            // 3. 合并打包
             try (java.util.zip.ZipFile zf = new java.util.zip.ZipFile(srcApk);
                  java.util.zip.ZipOutputStream zos = new java.util.zip.ZipOutputStream(
                         new java.io.FileOutputStream(outApk))) {
 
-                byte[] buf = new byte[8192];
-                // 复制原 APK 所有条目，保留原压缩方式
+                byte[] buf = new byte[65536];
+                // 复制原 APK 条目（跳过旧的 assets 和 lib，防止冲突）
                 java.util.Enumeration<? extends java.util.zip.ZipEntry> en = zf.entries();
                 while (en.hasMoreElements()) {
                     java.util.zip.ZipEntry e = en.nextElement();
+                    if (e.getName().startsWith("assets/") || e.getName().startsWith("lib/")) {
+                        continue;
+                    }
                     java.util.zip.ZipEntry ne = new java.util.zip.ZipEntry(e.getName());
                     ne.setMethod(e.getMethod());
                     ne.setTime(e.getTime());
                     if (e.getMethod() == java.util.zip.ZipEntry.STORED) {
-                        // STORED：必须手动设置 size/crc/compressedSize
                         ne.setSize(e.getSize());
                         ne.setCompressedSize(e.getSize());
                         ne.setCrc(e.getCrc());
@@ -718,73 +709,42 @@ public class BuiltinCompiler {
                     zos.putNextEntry(ne);
                     try (java.io.InputStream is = zf.getInputStream(e)) {
                         int len;
-                        while ((len = is.read(buf)) > 0) {
-                            zos.write(buf, 0, len);
-                        }
+                        while ((len = is.read(buf)) > 0) zos.write(buf, 0, len);
                     }
                     zos.closeEntry();
                 }
-                // 追加 native libs + assets
-                for (java.util.Map.Entry<String, File> e : toAdd.entrySet()) {
-                    boolean isSo = e.getKey().endsWith(".so");
-                    java.util.zip.ZipEntry ze = new java.util.zip.ZipEntry(e.getKey());
-                    // .so 必须 STORED 不压缩：Android 直接 mmap 加载
-                    if (isSo) {
-                        // STORED 条目必须在 putNextEntry 前设好 method/size/crc
+
+                // 强制追加新收集的文件
+                int soCount = 0, assetCount = 0;
+                for (java.util.Map.Entry<String, File> entry : toAdd.entrySet()) {
+                    String name = entry.getKey();
+                    File file = entry.getValue();
+
+                    java.util.zip.ZipEntry ze = new java.util.zip.ZipEntry(name);
+                    if (name.endsWith(".so")) {
+                        // .so 强制 STORED 不压缩
                         ze.setMethod(java.util.zip.ZipEntry.STORED);
-                        ze.setSize(e.getValue().length());
-                        ze.setCompressedSize(e.getValue().length());
-                        ze.setCrc(calcCrc(e.getValue()));
+                        ze.setSize(file.length());
+                        ze.setCompressedSize(file.length());
+                        ze.setCrc(calcCrc(file));
+                        soCount++;
+                    } else {
+                        ze.setMethod(java.util.zip.ZipEntry.DEFLATED);
+                        assetCount++;
                     }
                     zos.putNextEntry(ze);
-                    try (java.io.FileInputStream fis = new java.io.FileInputStream(e.getValue())) {
+                    try (java.io.FileInputStream fis = new java.io.FileInputStream(file)) {
                         int len;
-                        while ((len = fis.read(buf)) > 0) {
-                            zos.write(buf, 0, len);
-                        }
+                        while ((len = fis.read(buf)) > 0) zos.write(buf, 0, len);
                     }
                     zos.closeEntry();
                 }
+                log.append("[native-assets] 实际写入: .so=").append(soCount).append(" 个, assets=").append(assetCount).append(" 个\n");
             }
-            log.append("[native-assets] 打包 ").append(count).append(" 个文件到 APK\n");
             return count;
         } catch (Throwable t) {
-            log.append("[native-assets] 打包失败: ").append(t.getMessage()).append("\n");
+            log.append("[native-assets] 打包异常: ").append(describe(t)).append("\n");
             return 0;
-        }
-    }
-
-    /** 流式合并：把 dexFile 作为 entryName 追加到 baseZip 后面输出到 out（保留原压缩方式） */
-    private static void mergeZip(File baseZip, File dexFile, File out, String entryName) throws Exception {
-        try (java.util.zip.ZipFile zf = new java.util.zip.ZipFile(baseZip);
-             java.util.zip.ZipOutputStream zos = new java.util.zip.ZipOutputStream(new java.io.FileOutputStream(out))) {
-            byte[] buf = new byte[8192];
-            java.util.Enumeration<? extends java.util.zip.ZipEntry> en = zf.entries();
-            while (en.hasMoreElements()) {
-                java.util.zip.ZipEntry e = en.nextElement();
-                java.util.zip.ZipEntry ne = new java.util.zip.ZipEntry(e.getName());
-                ne.setMethod(e.getMethod());
-                ne.setTime(e.getTime());
-                if (e.getMethod() == java.util.zip.ZipEntry.STORED) {
-                    ne.setSize(e.getSize());
-                    ne.setCompressedSize(e.getSize());
-                    ne.setCrc(e.getCrc());
-                }
-                zos.putNextEntry(ne);
-                try (java.io.InputStream is = zf.getInputStream(e)) {
-                    int len;
-                    while ((len = is.read(buf)) > 0) zos.write(buf, 0, len);
-                }
-                zos.closeEntry();
-            }
-            // 追加 classes.dex（DEFLATE 压缩）
-            java.util.zip.ZipEntry ze = new java.util.zip.ZipEntry(entryName);
-            zos.putNextEntry(ze);
-            try (java.io.FileInputStream fis = new java.io.FileInputStream(dexFile)) {
-                int len;
-                while ((len = fis.read(buf)) > 0) zos.write(buf, 0, len);
-            }
-            zos.closeEntry();
         }
     }
 
