@@ -346,7 +346,7 @@ public class BuiltinCompiler {
 
             File resDir = RClassGenerator.findResDir(projectDir);
             File manifest = findManifest(projectDir);
-            String pkg = RClassGenerator.findPackageName(projectDir);
+            String pkg = "com.aicodestudio.ide"; // 自举编译写死包名
             if (manifest == null) {
                 // 无 AndroidManifest：生成最小 manifest（包名取 java 包，缺省用占位）
                 String mp = (pkg != null && pkg.length() > 0) ? pkg : "com.generated.app";
@@ -1125,9 +1125,15 @@ public class BuiltinCompiler {
         Matcher m = MANIFEST_TAG.matcher(text);
         if (!m.find()) return text;
         String head = m.group(1); // <manifest 与 > 之间的属性
-        if (pkg != null && pkg.length() > 0 && !MANIFEST_PACKAGE.matcher(text).find()) {
+        
+        // 先暴力移除所有旧的 package 属性，防止重复
+        text = text.replaceAll("\\bpackage\\s*=\\s*[\"'][^\"']*[\"']", "");
+        m = MANIFEST_TAG.matcher(text); // 重新匹配
+        if (m.find()) {
+            head = m.group(1);
+            // 强制加上新包名
             head = head + " package=\"" + pkg + "\"";
-            Log.i(TAG, "injected package=\"" + pkg + "\"");
+            Log.i(TAG, "force injected package=\"" + pkg + "\"");
         }
         if (!MANIFEST_VERSION_CODE.matcher(text).find()) {
             head = head + " android:versionCode=\"1\"";
@@ -1281,7 +1287,7 @@ public class BuiltinCompiler {
         // R 类生成（阶段一过渡，替代 aapt2）：扫描 res/ + 包名 → 生成 R.java 加入编译
         try {
             File resDir = RClassGenerator.findResDir(projectDir);
-            String pkg = RClassGenerator.findPackageName(projectDir);
+            String pkg = "com.aicodestudio.ide"; // 自举编译写死包名
             String rJava = RClassGenerator.generate(resDir, pkg);
             if (rJava != null && rJava.length() > 0) {
                 File genDir = new File(context.getCacheDir(), "compile_gen");
