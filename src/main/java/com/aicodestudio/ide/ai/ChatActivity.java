@@ -673,6 +673,8 @@ public class ChatActivity extends BaseWorkspaceActivity {
                     if (tvSubTitle != null) {
                         tvSubTitle.setText(s.title != null && !s.title.isEmpty() ? s.title : "未打开项目");
                     }
+                    // 【修复】切换会话后更新底部 Tab 的启用状态
+                    updateTabEnabled();
                 }
             });
         }
@@ -1101,6 +1103,8 @@ public class ChatActivity extends BaseWorkspaceActivity {
         state().setProjectType(WorkspaceState.detectProjectType(it.projectPath));
         AppConfig.getInstance(this).addRecentProject(it.projectPath);
         if (tvSubTitle != null) tvSubTitle.setText(state().getProjectName());
+        // 【修复】打开项目后更新底部 Tab 的启用状态
+        updateTabEnabled();
         closeDrawer();
         toast("已打开项目：" + state().getProjectName());
     }
