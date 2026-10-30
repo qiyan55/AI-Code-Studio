@@ -39,14 +39,14 @@
         <service
             android:name=".ai.StayAliveService"
             android:exported="false"
-            android:foregroundServiceType="dataSync"
+            
             android:stopWithTask="false" />
 
         <!-- RemoteConnector：远程连接器前台服务（云端 TCP 控制手机端） -->
         <service
             android:name=".ai.remote.RemoteConnectorService"
             android:exported="false"
-            android:foregroundServiceType="dataSync"
+            
             android:stopWithTask="false" />
 
         <!-- 安装代理 ContentProvider：把私有缓存里的 APK 暴露给系统安装器

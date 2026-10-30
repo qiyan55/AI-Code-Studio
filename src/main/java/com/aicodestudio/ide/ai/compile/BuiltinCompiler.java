@@ -88,7 +88,7 @@ public class BuiltinCompiler {
      * targetSdk 35/36（产物不含更高版本特有资源，仅声明不影响运行）。
      */
     private static String targetSdkForDevice() {
-        return "28";
+        return "33";
     }
 
     // ECJ 错误块：----------\n 1. ERROR in /path/File.java (at line 12)\n\t代码行\n\t     ^\n消息\n----------
@@ -351,7 +351,7 @@ public class BuiltinCompiler {
                 writeFile(manifest, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                         + "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\""
                         + " package=\"" + mp + "\">\n"
-                        + "    <uses-sdk android:minSdkVersion=\"26\" android:targetSdkVersion=\""
+                        + "    <uses-sdk android:minSdkVersion=\"21\" android:targetSdkVersion=\""
                         + "33" + "\" />\n"
                         + "    <application android:label=\"App\" />\n"
                         + "</manifest>\n");
@@ -370,7 +370,7 @@ public class BuiltinCompiler {
                 if (injected == null) {
                     injected = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                             + "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\" package=\"" + pkg + "\">\n"
-                            + "    <uses-sdk android:minSdkVersion=\"26\" android:targetSdkVersion=\"" + "33" + "\" />\n"
+                            + "    <uses-sdk android:minSdkVersion=\"21\" android:targetSdkVersion=\"" + "33" + "\" />\n"
                             + "    <application android:label=\"App\" />\n"
                             + "</manifest>\n";
                 }
@@ -993,9 +993,11 @@ public class BuiltinCompiler {
             signerBuilder.getClass().getMethod("setOutputApk", File.class).invoke(signerBuilder, output);
             signerBuilder.getClass().getMethod("setV1SigningEnabled", boolean.class).invoke(signerBuilder, true);
             signerBuilder.getClass().getMethod("setV2SigningEnabled", boolean.class).invoke(signerBuilder, true);
+            // 【终极修复】强制开启 V1/V2/V3 签名，迎合 vivo 的安全检测
             signerBuilder.getClass().getMethod("setV1SigningEnabled", boolean.class).invoke(signerBuilder, true);
             signerBuilder.getClass().getMethod("setV2SigningEnabled", boolean.class).invoke(signerBuilder, true);
             signerBuilder.getClass().getMethod("setV3SigningEnabled", boolean.class).invoke(signerBuilder, true);
+            signerBuilder.getClass().getMethod("setMinSdkVersion", int.class).invoke(signerBuilder, 21);
             Object signer = signerBuilder.getClass().getMethod("build").invoke(signerBuilder);
             signer.getClass().getMethod("sign").invoke(signer);
         } catch (Throwable t) {
@@ -1180,7 +1182,7 @@ public class BuiltinCompiler {
             int idx = text.lastIndexOf("</manifest>");
             if (idx > 0) {
                 text = text.substring(0, idx)
-                        + "    <uses-sdk android:minSdkVersion=\"26\" android:targetSdkVersion=\""
+                        + "    <uses-sdk android:minSdkVersion=\"21\" android:targetSdkVersion=\""
                         + "33" + "\" />\n"
                         + text.substring(idx);
                 Log.i(TAG, "injected uses-sdk minSdk=26 targetSdk=" + "33");
