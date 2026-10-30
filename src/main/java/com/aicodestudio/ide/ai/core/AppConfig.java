@@ -100,6 +100,22 @@ public class AppConfig {
         return instance;
     }
 
+
+    // ===== 应用状态恢复（防系统杀后台丢进度）=====
+    public void saveActiveState(int tab, String sessionId, String filePath, String code) {
+        prefs.edit()
+             .putInt("last_active_tab", tab)
+             .putString("last_session_id", sessionId)
+             .putString("last_file_path", filePath)
+             .putString("last_file_code", code)
+             .apply();
+    }
+    public int getLastActiveTab() { return prefs.getInt("last_active_tab", -1); }
+    public String getLastSessionId() { return prefs.getString("last_session_id", ""); }
+    public String getLastFilePath() { return prefs.getString("last_file_path", ""); }
+    public String getLastFileCode() { return prefs.getString("last_file_code", ""); }
+    public void clearActiveState() { prefs.edit().putInt("last_active_tab", -1).apply(); }
+
     // ===== 9.1 代码错误自动发送AI =====
     public boolean isAutoSendErrorToAI() {
         return prefs.getBoolean(K_AUTO_SEND_ERROR, true);

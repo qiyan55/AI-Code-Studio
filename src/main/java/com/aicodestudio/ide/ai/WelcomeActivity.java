@@ -121,6 +121,27 @@ public class WelcomeActivity extends Activity {
                     }
                 });
 
+        // 检查是否是被系统杀死后的冷启动（有记录且不是正常返回）
+        com.aicodestudio.ide.ai.core.AppConfig cfg = com.aicodestudio.ide.ai.core.AppConfig.getInstance(this);
+        int lastTab = cfg.getLastActiveTab();
+        if (savedInstanceState == null && lastTab != -1) {
+            // 恢复路由
+            if (lastTab == 0) { // Chat
+                Intent it = new Intent(this, ChatActivity.class);
+                it.putExtra("session_id", cfg.getLastSessionId());
+                it.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(it);
+            } else if (lastTab == 1) { // Editor
+                Intent it = new Intent(this, EditorActivity.class);
+                it.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(it);
+            } else if (lastTab == 2) { // Run
+                Intent it = new Intent(this, RunActivity.class);
+                it.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(it);
+            }
+        }
+
         // 申请后台保活相关权限（通知 + 电池白名单）
         if (Build.VERSION.SDK_INT >= 33) {
             if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {

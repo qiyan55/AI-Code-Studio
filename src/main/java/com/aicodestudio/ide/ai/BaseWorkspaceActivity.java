@@ -223,6 +223,7 @@ public abstract class BaseWorkspaceActivity extends Activity {
      * 所以对话记录、编辑器内容等数据不会因此清空。
      */
     protected void goHome() {
+        com.aicodestudio.ide.ai.core.AppConfig.getInstance(this).clearActiveState();
         long now = android.os.SystemClock.uptimeMillis();
         if (now - lastGoHomeMs < 400L) return;   // 400ms 防抖
         lastGoHomeMs = now;

@@ -132,6 +132,9 @@ public class ChatActivity extends BaseWorkspaceActivity {
         if (chatPanel != null && !chatPanel.isSwitching()) {
             try { chatPanel.saveSessionKv(); } catch (Throwable ignored) {}
         }
+        if (currentSessionId != null) {
+            com.aicodestudio.ide.ai.core.AppConfig.getInstance(this).saveActiveState(TAB_CHAT, currentSessionId, "", "");
+        }
     }
 
     @Override

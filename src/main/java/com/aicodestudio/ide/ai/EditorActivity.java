@@ -330,6 +330,11 @@ public class EditorActivity extends BaseWorkspaceActivity {
             android.util.Log.e("EditorActivity", "sync selection failed", t);
         }
         saveSilently();
+        // 记录当前打开的文件和内容（含未保存的编辑），防止系统杀后台丢失
+        if (editorView != null && editorView.getFilePath() != null && !editorView.getFilePath().isEmpty()) {
+            com.aicodestudio.ide.ai.core.AppConfig.getInstance(this).saveActiveState(
+                    TAB_EDITOR, "", editorView.getFilePath(), editorView.getCode());
+        }
     }
 
     @Override
@@ -350,6 +355,18 @@ public class EditorActivity extends BaseWorkspaceActivity {
         }
         fileTreeView.loadProject(proj);
 
+        // 如果进程被杀过，优先恢复上次未保存的文件状态
+        com.aicodestudio.ide.ai.core.AppConfig cfg = com.aicodestudio.ide.ai.core.AppConfig.getInstance(this);
+        String lastFile = cfg.getLastFilePath();
+        if (lastFile != null && !lastFile.isEmpty() && new File(lastFile).exists() 
+                && (state().getCurrentFilePath() == null || state().getCurrentFilePath().isEmpty())) {
+            String lastCode = cfg.getLastFileCode();
+            state().setCurrentFile(lastFile, lastCode);
+            if (!lastCode.equals(state().readFile(lastFile))) {
+                state().setCurrentCode(lastCode); // 标记为 dirty
+            }
+        }
+        
         String file = state().getCurrentFilePath();
         if (file.length() > 0 && new File(file).exists()) {
             String code = state().getCurrentCode();
