@@ -651,7 +651,6 @@ public class BuiltinCompiler {
         try {
             java.util.Map<String, File> toAdd = new java.util.LinkedHashMap<>();
 
-            // 1. 收集 jniLibs 下的 .so
             File jniLibsDir = findDir(projectDir, "jniLibs");
             if (jniLibsDir != null && jniLibsDir.isDirectory()) {
                 java.util.List<File> soFiles = new java.util.ArrayList<>();
@@ -659,45 +658,38 @@ public class BuiltinCompiler {
                 String libsBase = jniLibsDir.getAbsolutePath();
                 for (File so : soFiles) {
                     if (!so.getName().endsWith(".so")) continue;
-                    String relPath = so.getAbsolutePath().substring(libsBase.length() + 1).replace("\\", "/");
+                    String relPath = so.getAbsolutePath().substring(libsBase.length() + 1).replace("\", "/");
                     toAdd.put("lib/" + relPath, so);
                 }
-                log.append("[native-assets] 收集 jniLibs 完毕，找到 .so 数量: ").append(soFiles.size()).append('\n');
-            } else {
-                log.append("[native-assets] 未找到 jniLibs 目录\n");
+                log.append("[native-assets] 收集 jniLibs 完毕，找到 .so 数量: ").append(soFiles.size()).append('
+');
             }
 
-            // 2. 收集 assets 下的所有文件
             File assetsDir = findDir(projectDir, "assets");
             if (assetsDir != null && assetsDir.isDirectory()) {
                 java.util.List<File> assetFiles = new java.util.ArrayList<>();
                 collectFilesRecursive(assetsDir, assetFiles);
                 String assetsBase = assetsDir.getAbsolutePath();
                 for (File af : assetFiles) {
-                    String relPath = af.getAbsolutePath().substring(assetsBase.length() + 1).replace("\\", "/");
+                    String relPath = af.getAbsolutePath().substring(assetsBase.length() + 1).replace("\", "/");
                     toAdd.put("assets/" + relPath, af);
                 }
-                log.append("[native-assets] 收集 assets 完毕，找到文件数量: ").append(assetFiles.size()).append('\n');
-            } else {
-                log.append("[native-assets] 未找到 assets 目录\n");
+                log.append("[native-assets] 收集 assets 完毕，找到文件数量: ").append(assetFiles.size()).append('
+');
             }
 
             count = toAdd.size();
             if (count == 0) return 0;
 
-            // 3. 合并打包
             try (java.util.zip.ZipFile zf = new java.util.zip.ZipFile(srcApk);
                  java.util.zip.ZipOutputStream zos = new java.util.zip.ZipOutputStream(
                         new java.io.FileOutputStream(outApk))) {
 
                 byte[] buf = new byte[65536];
-                // 复制原 APK 条目（跳过旧的 assets 和 lib，防止冲突）
                 java.util.Enumeration<? extends java.util.zip.ZipEntry> en = zf.entries();
                 while (en.hasMoreElements()) {
                     java.util.zip.ZipEntry e = en.nextElement();
-                    if (e.getName().startsWith("assets/") || e.getName().startsWith("lib/")) {
-                        continue;
-                    }
+                    if (e.getName().startsWith("assets/") || e.getName().startsWith("lib/")) continue;
                     java.util.zip.ZipEntry ne = new java.util.zip.ZipEntry(e.getName());
                     ne.setMethod(e.getMethod());
                     ne.setTime(e.getTime());
@@ -714,7 +706,6 @@ public class BuiltinCompiler {
                     zos.closeEntry();
                 }
 
-                // 强制追加新收集的文件
                 int soCount = 0, assetCount = 0;
                 for (java.util.Map.Entry<String, File> entry : toAdd.entrySet()) {
                     String name = entry.getKey();
@@ -722,7 +713,6 @@ public class BuiltinCompiler {
 
                     java.util.zip.ZipEntry ze = new java.util.zip.ZipEntry(name);
                     if (name.endsWith(".so")) {
-                        // .so 强制 STORED 不压缩
                         ze.setMethod(java.util.zip.ZipEntry.STORED);
                         ze.setSize(file.length());
                         ze.setCompressedSize(file.length());
@@ -739,11 +729,13 @@ public class BuiltinCompiler {
                     }
                     zos.closeEntry();
                 }
-                log.append("[native-assets] 实际写入: .so=").append(soCount).append(" 个, assets=").append(assetCount).append(" 个\n");
+                log.append("[native-assets] 实际写入: .so=").append(soCount).append(" 个, assets=").append(assetCount).append(" 个
+");
             }
             return count;
         } catch (Throwable t) {
-            log.append("[native-assets] 打包异常: ").append(describe(t)).append("\n");
+            log.append("[native-assets] 打包异常: ").append(describe(t)).append("
+");
             return 0;
         }
     }
