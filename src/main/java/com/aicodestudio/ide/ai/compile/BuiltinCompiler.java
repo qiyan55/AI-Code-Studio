@@ -611,7 +611,7 @@ public class BuiltinCompiler {
             // 因为 AndroidManifest 设置了 extractNativeLibs="true"，系统安装时会自动解压对齐。
             // 原生 ZipAligner 会破坏 Data Descriptor，导致 apksigner 报 Malformed ZIP。
             // 因此直接跳过重对齐，使用合法的 unsigned.apk 签名。
-            log.append("[zip] 最终重对齐完成\n");
+            log.append("[zip] 已采用云端标准打包逻辑，跳过本地对齐\n");
 
             // ---- 6. apksigner 签名 ----
             String apkName = (pkg != null && pkg.length() > 0
@@ -679,7 +679,7 @@ public class BuiltinCompiler {
                 if (e.getName().startsWith("META-INF/")) continue;
                 
                 java.util.zip.ZipEntry ne = new java.util.zip.ZipEntry(e.getName());
-                // 核心修复：resources.arsc 必须 STORED 且设置正确的 CRC
+                // 云端 pack_std.py 逻辑：resources.arsc 强转 STORED，其它默认 DEFLATED
                 if (e.getName().equals("resources.arsc")) {
                     ne.setMethod(java.util.zip.ZipEntry.STORED);
                     ne.setSize(e.getSize());
@@ -699,10 +699,8 @@ public class BuiltinCompiler {
             }
             for (File dex : dexFiles) {
                 java.util.zip.ZipEntry ze = new java.util.zip.ZipEntry(dex.getName());
-                ze.setMethod(java.util.zip.ZipEntry.STORED);
-                ze.setSize(dex.length());
-                ze.setCompressedSize(dex.length());
-                ze.setCrc(calcCrc(dex));
+                // 照搬云端逻辑：dex 默认 DEFLATED 压缩
+                ze.setMethod(java.util.zip.ZipEntry.DEFLATED);
                 zos.putNextEntry(ze);
                 try (java.io.FileInputStream fis = new java.io.FileInputStream(dex)) {
                     int len;
