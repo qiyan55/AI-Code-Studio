@@ -24,6 +24,7 @@ import java.util.Locale;
 public class VoiceLog {
 
     private static Context app;
+    private static final java.util.concurrent.ExecutorService logExecutor = java.util.concurrent.Executors.newSingleThreadExecutor();
     private static Uri engineUri;
     private static Uri inputUri;
     private static String stamp;
@@ -64,14 +65,21 @@ public class VoiceLog {
 
     private static void append(Uri uri, String msg) {
         if (uri == null || app == null) return;
-        try {
-            ContentResolver cr = app.getContentResolver();
-            OutputStream os = cr.openOutputStream(uri, "wa"); // 追加写
-            if (os == null) return;
-            String line = new SimpleDateFormat("HH:mm:ss.SSS", Locale.US).format(new Date())
-                    + " [" + Thread.currentThread().getName() + "] " + msg + "\n";
-            os.write(line.getBytes("UTF-8"));
-            os.close();
-        } catch (Throwable ignored) {}
+        // 【关键修复】写入文件极度耗时，丢到后台线程执行，防止主线程卡死
+        final Uri finalUri = uri;
+        final String line = new SimpleDateFormat("HH:mm:ss.SSS", Locale.US).format(new Date())
+                + " [" + Thread.currentThread().getName() + "] " + msg + "\n";
+        logExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ContentResolver cr = app.getContentResolver();
+                    OutputStream os = cr.openOutputStream(finalUri, "wa"); // 追加写
+                    if (os == null) return;
+                    os.write(line.getBytes("UTF-8"));
+                    os.close();
+                } catch (Throwable ignored) {}
+            }
+        });
     }
 }

@@ -86,7 +86,7 @@ public class VoiceEngine {
         initStarted = true;
         appContext = ctx.getApplicationContext();
         
-        new Thread(new Runnable() {
+        Thread t = new Thread(new Runnable() {
             @Override public void run() {
                 try {
                     VoiceLog.init(appContext); // 公共目录日志 Download/AI_Code_Studio/
@@ -105,7 +105,9 @@ public class VoiceEngine {
                 notifyStatus();
                 isInitializing.set(false);
             }
-        }).start();
+        });
+        t.setPriority(Thread.MIN_PRIORITY);
+        t.start();
     }
 
     public OnlineRecognizer getRecognizer() { return recognizer; }

@@ -5143,7 +5143,7 @@ public class ChatPanel extends LinearLayout {
     private void startVoiceListening() {
         try {
             if (voiceListening) return;
-            VoiceLog.input("1. startVoiceListening enter");
+            VoiceLog.input("startVoice...");
             VoiceEngine engine = VoiceEngine.get();
             if (!engine.isReady()) {
                 int st = engine.getStatus();
@@ -5156,16 +5156,16 @@ public class ChatPanel extends LinearLayout {
                 return;
             }
             voiceListening = true;
-            VoiceLog.input("3. engine ready, hiding IME");
+            
             hideIme();
             if (etInput != null) {
                 etInput.setFocusable(false);
                 etInput.setCursorVisible(false);
             }
-            VoiceLog.input("4. showing overlay");
+            
             showVoiceOverlay();
             if (voiceInput == null) voiceInput = new VoiceInputManager();
-            VoiceLog.input("5. calling voiceInput.start()");
+            
             voiceInput.start(getContext(), new VoiceInputManager.Listener() {
                 @Override public void onPartial(String text) {
                     if (overlayText != null && text != null && text.length() > 0) {
