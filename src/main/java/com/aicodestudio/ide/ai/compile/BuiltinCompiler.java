@@ -369,8 +369,16 @@ public class BuiltinCompiler {
                     r.log = log.toString();
                     return r;
                 }
+                String injected = injectManifestDefaults(manifest, pkg);
+                if (injected == null) {
+                    injected = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+                            + "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\" package=\"" + pkg + "\">\n"
+                            + "    <uses-sdk android:minSdkVersion=\"26\" android:targetSdkVersion=\"" + targetSdkForDevice() + "\" />\n"
+                            + "    <application android:label=\"App\" />\n"
+                            + "</manifest>\n";
+                }
                 File tmpManifest = new File(work, "AndroidManifest.xml");
-                writeFile(tmpManifest, injectManifestDefaults(manifest, pkg));
+                writeFile(tmpManifest, injected);
                 manifest = tmpManifest;
                 log.append("[manifest] 检测到无 package 属性，已注入 package/versionCode/versionName/uses-sdk\n");
             } else {
@@ -1129,12 +1137,11 @@ public class BuiltinCompiler {
         // 先暴力移除所有旧的 package 属性，防止重复
         text = text.replaceAll("\\bpackage\\s*=\\s*[\"'][^\"']*[\"']", "");
         m = MANIFEST_TAG.matcher(text); // 重新匹配
-        if (m.find()) {
-            head = m.group(1);
-            // 强制加上新包名
-            head = head + " package=\"" + pkg + "\"";
-            Log.i(TAG, "force injected package=\"" + pkg + "\"");
-        }
+        if (!m.find()) return null; // 如果连标签都找不到，直接返回 null 触发兜底
+        head = m.group(1);
+        // 强制加上新包名
+        head = head + " package=\"" + pkg + "\"";
+        Log.i(TAG, "force injected package=\"" + pkg + "\"");
         if (!MANIFEST_VERSION_CODE.matcher(text).find()) {
             head = head + " android:versionCode=\"1\"";
             Log.i(TAG, "injected versionCode=1");
@@ -1647,6 +1654,7 @@ public class BuiltinCompiler {
     }
 
     private void writeFile(File f, String content) throws IOException {
+        if (content == null) content = "";
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(f);
