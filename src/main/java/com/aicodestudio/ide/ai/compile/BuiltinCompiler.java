@@ -79,8 +79,8 @@ public class BuiltinCompiler {
     /** <manifest 开始标签（<manifest 与 > 之间为属性区） */
     private static final Pattern MANIFEST_TAG =
             Pattern.compile("<manifest\\b([^>]*?)>", Pattern.DOTALL);
-    private static final String KS_ALIAS = "aicode";
-    private static final String KS_PASS = "aicode123";
+    private static final String KS_ALIAS = "androiddebugkey";
+    private static final String KS_PASS = "android";
     /**
      * 产物 APK 的 targetSdk：跟随设备系统版本（避免系统提示「兼容性问题」，
      * 常见于 Android 15/16 新机对 targetSdk 落后系统版本的 APK 给出警告）。

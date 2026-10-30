@@ -31,7 +31,7 @@ jobs:
         python3 tools/pack_std.py build/resources.ap_ build/dex/classes.dex src/main/jniLibs build/app-unsigned.apk arm64-v8a
         $ANDROID_HOME/build-tools/34.0.0/zipalign -p 4 build/app-unsigned.apk build/app-aligned.apk
         
-        $ANDROID_HOME/build-tools/34.0.0/apksigner sign --ks signing/aicode.keystore --ks-pass pass:aicode123 --key-pass pass:aicode123 --out build/AI_Code_Studio.apk build/app-aligned.apk
+        $ANDROID_HOME/build-tools/34.0.0/apksigner sign --ks signing/aicode.keystore --ks-pass pass:android --key-pass pass:android --out build/AI_Code_Studio.apk build/app-aligned.apk
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
