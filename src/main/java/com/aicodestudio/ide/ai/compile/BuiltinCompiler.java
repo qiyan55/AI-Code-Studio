@@ -88,7 +88,7 @@ public class BuiltinCompiler {
      * targetSdk 35/36（产物不含更高版本特有资源，仅声明不影响运行）。
      */
     private static String targetSdkForDevice() {
-        return "28"; // 强制降级，解决 vivo 兼容性拦截
+        return "28";
     }
 
     // ECJ 错误块：----------\n 1. ERROR in /path/File.java (at line 12)\n\t代码行\n\t     ^\n消息\n----------
@@ -686,6 +686,10 @@ public class BuiltinCompiler {
             }
             for (File dex : dexFiles) {
                 java.util.zip.ZipEntry ze = new java.util.zip.ZipEntry(dex.getName());
+                ze.setMethod(java.util.zip.ZipEntry.STORED); // 强制不压缩
+                ze.setSize(dex.length());
+                ze.setCompressedSize(dex.length());
+                ze.setCrc(calcCrc(dex));
                 zos.putNextEntry(ze);
                 try (java.io.FileInputStream fis = new java.io.FileInputStream(dex)) {
                     int len;
@@ -739,7 +743,15 @@ public class BuiltinCompiler {
                     java.util.zip.ZipEntry e = en.nextElement();
                     if (e.getName().startsWith("assets/") || e.getName().startsWith("lib/")) continue;
                     java.util.zip.ZipEntry ne = new java.util.zip.ZipEntry(e.getName());
-                    ne.setMethod(e.getMethod());
+                    // 【关键】resources.arsc 被 Android 强制要求不能压缩，否则直接报兼容性错误
+                    if (e.getName().equals("resources.arsc") || e.getName().endsWith(".dex")) {
+                        ne.setMethod(java.util.zip.ZipEntry.STORED);
+                        ne.setSize(e.getSize());
+                        ne.setCompressedSize(e.getSize());
+                        ne.setCrc(e.getCrc());
+                    } else {
+                        ne.setMethod(e.getMethod());
+                    }
                     ne.setTime(e.getTime());
                     if (e.getMethod() == java.util.zip.ZipEntry.STORED) {
                         ne.setSize(e.getSize());
@@ -979,7 +991,7 @@ public class BuiltinCompiler {
             signerBuilder.getClass().getMethod("setOutputApk", File.class).invoke(signerBuilder, output);
             signerBuilder.getClass().getMethod("setV1SigningEnabled", boolean.class).invoke(signerBuilder, true);
             signerBuilder.getClass().getMethod("setV2SigningEnabled", boolean.class).invoke(signerBuilder, true);
-            signerBuilder.getClass().getMethod("setV3SigningEnabled", boolean.class).invoke(signerBuilder, true);
+            signerBuilder.getClass().getMethod("setV3SigningEnabled", boolean.class).invoke(signerBuilder, false);
             Object signer = signerBuilder.getClass().getMethod("build").invoke(signerBuilder);
             signer.getClass().getMethod("sign").invoke(signer);
         } catch (Throwable t) {
