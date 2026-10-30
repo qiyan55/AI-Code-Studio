@@ -88,10 +88,7 @@ public class BuiltinCompiler {
      * targetSdk 35/36（产物不含更高版本特有资源，仅声明不影响运行）。
      */
     private static String targetSdkForDevice() {
-        int device = Build.VERSION.SDK_INT;
-        int target = Math.min(device, 34);
-        if (target < 26) target = 26;
-        return String.valueOf(target);
+        return "28"; // 强降级以兼容 vivo 等国产系统的严格校验
     }
 
     // ECJ 错误块：----------\n 1. ERROR in /path/File.java (at line 12)\n\t代码行\n\t     ^\n消息\n----------
