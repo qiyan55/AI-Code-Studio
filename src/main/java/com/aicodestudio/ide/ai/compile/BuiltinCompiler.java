@@ -1190,6 +1190,11 @@ public class BuiltinCompiler {
         if (am.find()) {
             String appHead = am.group(1);
             
+            // 【终极防弹】在局部变量 appHead 中强行清理掉可能引发冲突的属性
+            appHead = appHead.replaceAll("\\s*android:extractNativeLibs\\s*=\\s*\"[^\"]*\"", "");
+            appHead = appHead.replaceAll("\\s*android:resizeableActivity\\s*=\\s*\"[^\"]*\"", "");
+            appHead = appHead.replaceAll("\\s*android:maxAspectRatio\\s*=\\s*\"[^\"]*\"", "");
+            
             // 注入崩溃采集（如果原本没有 android:name）
             if (!appHead.contains("android:name")) {
                 appHead += " android:name=\"com.aicodestudio.toolchain.CrashCapture\"";
