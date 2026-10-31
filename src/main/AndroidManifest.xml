@@ -26,6 +26,7 @@
     <application
         android:resizeableActivity="true"
         android:maxAspectRatio="2.4"
+        android:extractNativeLibs="true"
         android:name=".ai.AICodeStudioApp"
         android:label="AI Code Studio"
         android:icon="@mipmap/ic_launcher"
@@ -33,7 +34,6 @@
         android:allowBackup="true"
         android:supportsRtl="true"
         android:largeHeap="true"
-        android:extractNativeLibs="true"
         android:networkSecurityConfig="@xml/network_security_config"
         android:theme="@style/AICodeStudioTheme">
 

@@ -1179,7 +1179,11 @@ public class BuiltinCompiler {
 
         // 3. 安全地替换 uses-sdk 和注入 extractNativeLibs
         text = text.replaceAll("<uses-sdk[^>]*>", "");
-        // 强制注入全面屏适配属性（解决 vivo 底部黑条 / 信箱模式）
+        // 【关键修复】先清理掉所有的重复属性，再统一注入
+        text = text.replaceAll("\\s*android:extractNativeLibs\\s*=\\s*\"[^\"]*\"", "");
+        text = text.replaceAll("\\s*android:resizeableActivity\\s*=\\s*\"[^\"]*\"", "");
+        text = text.replaceAll("\\s*android:maxAspectRatio\\s*=\\s*\"[^\"]*\"", "");
+        // 统一注入唯一属性
         text = text.replaceAll("<application\\b([^>]*?)>", "<application$1 android:extractNativeLibs=\"true\" android:resizeableActivity=\"true\" android:maxAspectRatio=\"2.4\">");
         int idx = text.lastIndexOf("</manifest>");
         if (idx > 0) {
