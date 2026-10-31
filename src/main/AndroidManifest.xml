@@ -24,6 +24,8 @@
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
 
     <application
+        android:resizeableActivity="true"
+        android:maxAspectRatio="2.4"
         android:name=".ai.AICodeStudioApp"
         android:label="AI Code Studio"
         android:icon="@mipmap/ic_launcher"
@@ -61,6 +63,7 @@
         <!-- 欢迎 / 主页界面（启动页） -->
         <activity
             android:name=".ai.WelcomeActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|uiMode|keyboardHidden"
             android:exported="true"
             android:label="AI Code Studio"
             android:launchMode="singleTask"
