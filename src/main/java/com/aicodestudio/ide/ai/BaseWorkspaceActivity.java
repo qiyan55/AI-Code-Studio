@@ -3,6 +3,7 @@ package com.aicodestudio.ide.ai;
 import com.aicodestudio.ide.ai.ui.Theme;
 import com.aicodestudio.ide.ai.ui.UiKit;
 import android.app.Activity;
+import android.os.Build;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
