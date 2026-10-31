@@ -1,11 +1,16 @@
 name: Build APK
+
 on: [push, workflow_dispatch]
+
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
@@ -16,19 +21,27 @@ jobs:
       run: |
         mkdir -p build/gen build/classes build/dex
         ANDROID_JAR=$ANDROID_HOME/platforms/android-34/android.jar
+        
         $ANDROID_HOME/build-tools/34.0.0/aapt2 compile --dir src/main/res -o build/res.zip
+        
         $ANDROID_HOME/build-tools/34.0.0/aapt2 link -o build/resources.ap_ build/res.zip \
           -I $ANDROID_JAR \
           --manifest src/main/AndroidManifest.xml \
           --java build/gen \
-          --min-sdk-version 26 --target-sdk-version 34
+          --min-sdk-version 21 --target-sdk-version 34
+          
         find src/main/java -name "*.java" > build/sources.txt
         find build/gen -name "R.java" >> build/sources.txt
+        
         javac -source 1.8 -target 1.8 -encoding UTF-8 -nowarn \
           -classpath "$ANDROID_JAR:libs/*" -d build/classes @build/sources.txt
+          
         find build/classes -name "*.class" > build/classes.txt
-        $ANDROID_HOME/build-tools/34.0.0/d8 --min-api 26 --lib $ANDROID_JAR --output build/dex @build/classes.txt
+        
+        $ANDROID_HOME/build-tools/34.0.0/d8 --min-api 21 --lib $ANDROID_JAR --output build/dex @build/classes.txt
+        
         python3 tools/pack_std.py build/resources.ap_ build/dex/classes.dex src/main/jniLibs build/app-unsigned.apk arm64-v8a
+        
         $ANDROID_HOME/build-tools/34.0.0/zipalign -p 4 build/app-unsigned.apk build/app-aligned.apk
         
         $ANDROID_HOME/build-tools/34.0.0/apksigner sign --ks signing/aicode.keystore --ks-pass pass:android --key-pass pass:android --out build/AI_Code_Studio.apk build/app-aligned.apk
@@ -39,21 +52,12 @@ jobs:
         name: app-debug-apk
         path: build/AI_Code_Studio.apk
 
-    - name: Publish to Release
-      uses: softprops/action-gh-release@v2
-      with:
-        files: build/AI_Code_Studio.apk
-        tag_name: v1.0.${{ github.run_number }}
-        name: Latest Build
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Auto commit APK to repo
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          mkdir -p release_apk
-          cp build/AI_Code_Studio.apk release_apk/latest.apk || cp app/build/outputs/apk/debug/*.apk release_apk/latest.apk
-          git add release_apk/latest.apk
-          git commit -m "Auto build: Update latest.apk" || echo "No changes to commit"
-          git push
+    - name: Auto commit APK to repo
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        mkdir -p release_apk
+        cp build/AI_Code_Studio.apk release_apk/latest.apk
+        git add release_apk/latest.apk
+        git commit -m "Auto build: Update latest.apk" || echo "No changes to commit"
+        git push
