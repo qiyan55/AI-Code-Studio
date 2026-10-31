@@ -678,9 +678,7 @@ public class BuiltinCompiler {
             while (en.hasMoreElements()) {
                 java.util.zip.ZipEntry e = en.nextElement();
                 if (e.getName().startsWith("META-INF/")) continue;
-                
                 java.util.zip.ZipEntry ne = new java.util.zip.ZipEntry(e.getName());
-                // 云端 pack_std.py 逻辑：resources.arsc 强转 STORED，其它默认 DEFLATED
                 if (e.getName().equals("resources.arsc")) {
                     ne.setMethod(java.util.zip.ZipEntry.STORED);
                     ne.setSize(e.getSize());
@@ -688,9 +686,9 @@ public class BuiltinCompiler {
                     ne.setCrc(e.getCrc());
                 } else {
                     ne.setMethod(java.util.zip.ZipEntry.DEFLATED);
+                    ne.setSize(e.getSize());
+                    ne.setCrc(e.getCrc());
                 }
-                ne.setTime(e.getTime());
-                
                 zos.putNextEntry(ne);
                 try (java.io.InputStream is = zf.getInputStream(e)) {
                     int len;
@@ -700,8 +698,9 @@ public class BuiltinCompiler {
             }
             for (File dex : dexFiles) {
                 java.util.zip.ZipEntry ze = new java.util.zip.ZipEntry(dex.getName());
-                // 照搬云端逻辑：dex 默认 DEFLATED 压缩
                 ze.setMethod(java.util.zip.ZipEntry.DEFLATED);
+                ze.setSize(dex.length());
+                ze.setCrc(calcCrc(dex));
                 zos.putNextEntry(ze);
                 try (java.io.FileInputStream fis = new java.io.FileInputStream(dex)) {
                     int len;
@@ -716,7 +715,6 @@ public class BuiltinCompiler {
         int count = 0;
         try {
             java.util.Map<String, File> toAdd = new java.util.LinkedHashMap<>();
-
             File jniLibsDir = findDir(projectDir, "jniLibs");
             if (jniLibsDir != null && jniLibsDir.isDirectory()) {
                 java.util.List<File> soFiles = new java.util.ArrayList<>();
@@ -727,9 +725,7 @@ public class BuiltinCompiler {
                     String relPath = so.getAbsolutePath().substring(libsBase.length() + 1);
                     toAdd.put("lib/" + relPath, so);
                 }
-                log.append("[native-assets] 收集 jniLibs 完毕，找到 .so 数量: ").append(soFiles.size()).append("\n");
             }
-
             File assetsDir = findDir(projectDir, "assets");
             if (assetsDir != null && assetsDir.isDirectory()) {
                 java.util.List<File> assetFiles = new java.util.ArrayList<>();
@@ -739,35 +735,26 @@ public class BuiltinCompiler {
                     String relPath = af.getAbsolutePath().substring(assetsBase.length() + 1);
                     toAdd.put("assets/" + relPath, af);
                 }
-                log.append("[native-assets] 收集 assets 完毕，找到文件数量: ").append(assetFiles.size()).append("\n");
             }
-
             count = toAdd.size();
             if (count == 0) return 0;
 
             try (java.util.zip.ZipFile zf = new java.util.zip.ZipFile(srcApk);
-                 java.util.zip.ZipOutputStream zos = new java.util.zip.ZipOutputStream(
-                        new java.io.FileOutputStream(outApk))) {
-
+                 java.util.zip.ZipOutputStream zos = new java.util.zip.ZipOutputStream(new java.io.FileOutputStream(outApk))) {
                 byte[] buf = new byte[65536];
                 java.util.Enumeration<? extends java.util.zip.ZipEntry> en = zf.entries();
                 while (en.hasMoreElements()) {
                     java.util.zip.ZipEntry e = en.nextElement();
                     if (e.getName().startsWith("assets/") || e.getName().startsWith("lib/")) continue;
                     java.util.zip.ZipEntry ne = new java.util.zip.ZipEntry(e.getName());
-                    // 【关键】resources.arsc 被 Android 强制要求不能压缩，否则直接报兼容性错误
                     if (e.getName().equals("resources.arsc") || e.getName().endsWith(".dex")) {
                         ne.setMethod(java.util.zip.ZipEntry.STORED);
                         ne.setSize(e.getSize());
                         ne.setCompressedSize(e.getSize());
                         ne.setCrc(e.getCrc());
                     } else {
-                        ne.setMethod(e.getMethod());
-                    }
-                    ne.setTime(e.getTime());
-                    if (e.getMethod() == java.util.zip.ZipEntry.STORED) {
+                        ne.setMethod(java.util.zip.ZipEntry.DEFLATED);
                         ne.setSize(e.getSize());
-                        ne.setCompressedSize(e.getSize());
                         ne.setCrc(e.getCrc());
                     }
                     zos.putNextEntry(ne);
@@ -778,30 +765,18 @@ public class BuiltinCompiler {
                     zos.closeEntry();
                 }
 
-                int soCount = 0, assetCount = 0;
                 for (java.util.Map.Entry<String, File> entry : toAdd.entrySet()) {
-                    String name = entry.getKey();
-                    File file = entry.getValue();
-
-                    java.util.zip.ZipEntry ze = new java.util.zip.ZipEntry(name);
-                    // 【核心修复】提前计算好 CRC 和 Size，防止生成 Data Descriptor，保证对齐工具能完美处理
-                    java.util.zip.CRC32 crc = new java.util.zip.CRC32();
+                    java.util.zip.ZipEntry ze = new java.util.zip.ZipEntry(entry.getKey());
                     ze.setMethod(java.util.zip.ZipEntry.DEFLATED);
-                    ze.setSize(file.length());
-                    try (java.io.FileInputStream fis = new java.io.FileInputStream(file)) {
-                        int len;
-                        while ((len = fis.read(buf)) > 0) crc.update(buf, 0, len);
-                    }
-                    ze.setCrc(crc.getValue());
+                    ze.setSize(entry.getValue().length());
+                    ze.setCrc(calcCrc(entry.getValue()));
                     zos.putNextEntry(ze);
-                    try (java.io.FileInputStream fis = new java.io.FileInputStream(file)) {
+                    try (java.io.FileInputStream fis = new java.io.FileInputStream(entry.getValue())) {
                         int len;
                         while ((len = fis.read(buf)) > 0) zos.write(buf, 0, len);
                     }
                     zos.closeEntry();
-                    if (name.endsWith(".so")) soCount++; else assetCount++;
                 }
-                log.append("[native-assets] 实际写入: .so=").append(soCount).append(" 个, assets=").append(assetCount).append(" 个\n");
             }
             return count;
         } catch (Throwable t) {
