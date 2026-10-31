@@ -88,7 +88,7 @@ public class BuiltinCompiler {
      * targetSdk 35/36（产物不含更高版本特有资源，仅声明不影响运行）。
      */
     private static String targetSdkForDevice() {
-        return "33";
+        return "34";
     }
 
     // ECJ 错误块：----------\n 1. ERROR in /path/File.java (at line 12)\n\t代码行\n\t     ^\n消息\n----------
@@ -1183,7 +1183,7 @@ public class BuiltinCompiler {
         text = text.replaceAll("<application\\b([^>]*?)>", "<application$1 android:extractNativeLibs=\"true\" android:resizeableActivity=\"true\" android:maxAspectRatio=\"2.4\">");
         int idx = text.lastIndexOf("</manifest>");
         if (idx > 0) {
-            text = text.substring(0, idx) + "    <uses-sdk android:minSdkVersion=\"21\" android:targetSdkVersion=\"28\" />\n" + text.substring(idx);
+            text = text.substring(0, idx) + "    <uses-sdk android:minSdkVersion=\"21\" android:targetSdkVersion=\"34\" />\n" + text.substring(idx);
         }
         return text;
     }
