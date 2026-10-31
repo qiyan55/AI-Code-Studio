@@ -1160,35 +1160,48 @@ public class BuiltinCompiler {
         String text = readFile(manifest);
         if (text == null) return text;
 
-        // 1. 直接使用 replace 清理敏感属性，绝不使用坐标替换
+        // 1. 全局清理容易冲突和重复的属性（包括 extractNativeLibs）
         text = text.replaceAll("\\s*android:testOnly\\s*=\\s*\"[^\"]*\"", "");
         text = text.replaceAll("\\s*android:debuggable\\s*=\\s*\"[^\"]*\"", "");
-        text = text.replaceAll("\\s*android:extractNativeLibs\\s*=\\s*\"[^\"]*\"", ""); 
-        text = text.replaceAll("\\s*package\\s*=\\s*[\"'][^\"']*[\"']", ""); 
+        text = text.replaceAll("\\s*android:extractNativeLibs\\s*=\\s*\"[^\"]*\"", "");
+        text = text.replaceAll("\\s*android:resizeableActivity\\s*=\\s*\"[^\"]*\"", "");
+        text = text.replaceAll("\\s*android:maxAspectRatio\\s*=\\s*\"[^\"]*\"", "");
+        text = text.replaceAll("\\s*package\\s*=\\s*[\"'][^\"']*[\"']", "");
 
-        // 2. 使用正则表达式直接匹配整个 <manifest ...> 标签进行替换，绝不用坐标
+        // 2. 安全替换 <manifest> 标签
         Matcher m = Pattern.compile("<manifest\\b([^>]*?)>", Pattern.DOTALL).matcher(text);
         if (m.find()) {
             String head = m.group(1);
             head += " package=\"" + (pkg != null ? pkg : "com.aicodestudio.ide") + "\"";
             if (!head.contains("android:versionCode")) head += " android:versionCode=\"79\"";
             if (!head.contains("android:versionName")) head += " android:versionName=\"1.76-fix4\"";
-            // 安全替换
             text = m.replaceFirst("<manifest" + head + ">");
         }
 
-        // 3. 安全地替换 uses-sdk 和注入 extractNativeLibs
+        // 3. 安全替换 <uses-sdk>（强制 minSdk 21, targetSdk 34）
         text = text.replaceAll("<uses-sdk[^>]*>", "");
-        // 【关键修复】先清理掉所有的重复属性，再统一注入
-        text = text.replaceAll("\\s*android:extractNativeLibs\\s*=\\s*\"[^\"]*\"", "");
-        text = text.replaceAll("\\s*android:resizeableActivity\\s*=\\s*\"[^\"]*\"", "");
-        text = text.replaceAll("\\s*android:maxAspectRatio\\s*=\\s*\"[^\"]*\"", "");
-        // 统一注入唯一属性
-        text = text.replaceAll("<application\\b([^>]*?)>", "<application$1 android:extractNativeLibs=\"true\" android:resizeableActivity=\"true\" android:maxAspectRatio=\"2.4\">");
         int idx = text.lastIndexOf("</manifest>");
         if (idx > 0) {
             text = text.substring(0, idx) + "    <uses-sdk android:minSdkVersion=\"21\" android:targetSdkVersion=\"34\" />\n" + text.substring(idx);
         }
+
+        // 4. 处理 <application> 标签，注入防黑条和 NativeLibs 属性
+        Matcher am = Pattern.compile("<application\\b([^>]*?)>", Pattern.DOTALL).matcher(text);
+        if (am.find()) {
+            String appHead = am.group(1);
+            
+            // 注入崩溃采集（如果原本没有 android:name）
+            if (!appHead.contains("android:name")) {
+                appHead += " android:name=\"com.aicodestudio.toolchain.CrashCapture\"";
+            }
+            
+            // 统一注入：原生库解压 + 全面屏支持
+            appHead += " android:extractNativeLibs=\"true\" android:resizeableActivity=\"true\" android:maxAspectRatio=\"2.4\"";
+            
+            // 执行替换
+            text = text.substring(0, am.start()) + "<application" + appHead + ">" + text.substring(am.end());
+        }
+
         return text;
     }
 
