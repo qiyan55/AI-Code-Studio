@@ -607,6 +607,7 @@ public class BuiltinCompiler {
                 unsigned = unsignedWithNative;
                 log.append("[zip] 已打包项目 native libs + assets，共 " + nativeCount + " 个文件\n");
             log.append("[zip] 放弃本地对齐\n");
+            log.append("[zip] 放弃本地对齐\n");
             }
             // ---- 5.6 最终整体重对齐 ----
             // 放弃自研对齐。因为 .so 是压缩的，且 Manifest 声明了 extractNativeLibs="true"，
