@@ -608,10 +608,9 @@ public class BuiltinCompiler {
                 log.append("[zip] 已打包项目 native libs + assets，共 " + nativeCount + " 个文件\n");
             }
             // ---- 5.6 最终整体重对齐 ----
-            File alignedFinal = new File(work, "aligned_final.apk");
-            ZipAligner.realign(unsigned, alignedFinal);
-            unsigned = alignedFinal;
-            log.append("[zip] 最终重对齐完成\n");
+            // 放弃自研对齐。因为 .so 是压缩的，且 Manifest 声明了 extractNativeLibs="true"，
+            // 系统安装时自动解压。强行重写 ZIP 结构会导致 apksigner 报 Malformed ZIP。
+            log.append("[zip] 跳过自研重对齐（依靠系统安装时自动解压）\n");
 
             // ---- 6. apksigner 签名 ----
             String apkName = (pkg != null && pkg.length() > 0
