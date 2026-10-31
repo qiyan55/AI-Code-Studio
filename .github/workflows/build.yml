@@ -47,3 +47,13 @@ jobs:
         name: Latest Build
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Auto commit APK to repo
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          mkdir -p release_apk
+          cp build/AI_Code_Studio.apk release_apk/latest.apk || cp app/build/outputs/apk/debug/*.apk release_apk/latest.apk
+          git add release_apk/latest.apk
+          git commit -m "Auto build: Update latest.apk" || echo "No changes to commit"
+          git push
